@@ -2962,141 +2962,244 @@ function parseCSVLine(line) {
 
 function importCSV(event) {
 
-  const file =
-    event.target.files[0];
-
+  const file = event.target.files[0];
 
   if (!file) {
     return;
   }
 
+  const reader = new FileReader();
 
-  const reader =
-    new FileReader();
+  reader.onload = function(e) {
 
+    const text = e.target.result;
 
-  reader.onload =
-    function(e) {
+    const lines = text
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(Boolean);
 
-      const text =
-        e.target.result;
+    if (!lines.length) {
+      showToast("Le fichier est vide.");
+      return;
+    }
 
+    let added = 0;
+    let ignored = 0;
 
-      const lines =
-        text.split(/\r?\n/)
-          .map(line => line.trim())
-          .filter(Boolean);
+    /*
+     * On regarde la première ligne pour déterminer
+     * si elle contient des titres de colonnes.
+     */
 
+    const firstFields = parseCSVLine(lines[0]);
 
-      let added = 0;
+    const firstLine = firstFields
+      .join(";")
+      .toLowerCase();
 
+    const hasHeader =
+      firstLine.includes("nom") ||
+      firstLine.includes("prénom") ||
+      firstLine.includes("prenom") ||
+      firstLine.includes("licence");
 
-      lines.forEach(
-        (line,index) => {
+    /*
+     * Si la première ligne est un en-tête,
+     * on la saute.
+     */
 
-          const fields =
-            parseCSVLine(line);
-
-
-          /*
-           Ignore une éventuelle
-           ligne d'en-tête.
-          */
-
-          if (
-            index === 0 &&
-            fields[0]?.toLowerCase()
-              .includes("nom")
-          ) {
-            return;
-          }
-
-
-          if (
-            fields.length < 2
-          ) {
-            return;
-          }
+    const startIndex = hasHeader ? 1 : 0;
 
 
-          const lastname =
-            fields[0] || "";
+    for (
+      let i = startIndex;
+      i < lines.length;
+      i++
+    ) {
+
+      const fields = parseCSVLine(lines[i]);
+
+      /*
+       * Nouveau format :
+       *
+       * 0 = numéro de licence → IGNORÉ
+       * 1 = nom
+       * 2 = prénom
+       * 3 = classe
+       */
+
+      if (fields.length < 3) {
+        ignored++;
+        continue;
+      }
 
 
-          const firstname =
-            fields[1] || "";
+      let lastname;
+      let firstname;
+      let studentClass;
 
 
-          const studentClass =
-            fields[2] || "";
+      /*
+       * Si le fichier possède 4 colonnes ou plus,
+       * on considère qu'il contient une licence.
+       */
+
+      if (fields.length >= 4) {
+
+        lastname =
+          (fields[1] || "").trim();
+
+        firstname =
+          (fields[2] || "").trim();
+
+        studentClass =
+          (fields[3] || "").trim();
+
+      } else {
+
+        /*
+         * Compatibilité avec l'ancien format :
+         *
+         * Nom;Prénom;Classe
+         */
+
+        lastname =
+          (fields[0] || "").trim();
+
+        firstname =
+          (fields[1] || "").trim();
+
+        studentClass =
+          (fields[2] || "").trim();
+      }
 
 
-          if (
-            !lastname ||
-            !firstname
-          ) {
-            return;
-          }
+      /*
+       * Nettoyage éventuel des guillemets
+       */
+
+      lastname =
+        lastname.replace(/^"|"$/g, "");
+
+      firstname =
+        firstname.replace(/^"|"$/g, "");
+
+      studentClass =
+        studentClass.replace(/^"|"$/g, "");
 
 
-          /*
-           Évite les doublons
-          */
+      /*
+       * Vérification
+       */
 
-          const exists =
-            roster.some(student =>
-
-              student.lastname
-                .toLowerCase() ===
-                lastname.toLowerCase() &&
-
-              student.firstname
-                .toLowerCase() ===
-                firstname.toLowerCase()
-
-            );
+      if (!lastname || !firstname) {
+        ignored++;
+        continue;
+      }
 
 
-          if (!exists) {
+      /*
+       * Recherche d'un éventuel doublon
+       */
 
-            roster.push({
+      const exists = roster.some(student =>
 
-              id: uid(),
+        String(student.lastname)
+          .trim()
+          .toLowerCase() ===
+        lastname.toLowerCase()
 
-              lastname,
+        &&
 
-              firstname,
+        String(student.firstname)
+          .trim()
+          .toLowerCase() ===
+        firstname.toLowerCase()
 
-              class: studentClass
-
-            });
-
-
-            added++;
-
-          }
-
-        }
       );
 
 
-      saveData();
+      if (exists) {
 
-      renderRoster();
-
-      renderGroupSelects();
-
-      renderHome();
-
-      showToast(
-        `${added} élève${added > 1 ? "s" : ""} importé${added > 1 ? "s" : ""} ✅`
-      );
+        ignored++;
+        continue;
+      }
 
 
-      event.target.value = "";
+      /*
+       * Ajout de l'élève
+       */
 
-    };
+      roster.push({
 
+        id: uid(),
+
+        lastname: lastname,
+
+        firstname: firstname,
+
+        class: studentClass
+
+      });
+
+
+      added++;
+    }
+
+
+    /*
+     * Sauvegarde
+     */
+
+    saveData();
+
+
+    /*
+     * Mise à jour de l'application
+     */
+
+    renderRoster();
+
+    renderGroupSelects();
+
+    renderHome();
+
+    renderAppel();
+
+    renderBilan();
+
+
+    /*
+     * Message de confirmation
+     */
+
+    let message =
+      `${added} élève${added > 1 ? "s" : ""} importé${added > 1 ? "s" : ""} ✅`;
+
+    if (ignored > 0) {
+
+      message +=
+        ` (${ignored} ignoré${ignored > 1 ? "s" : ""})`;
+
+    }
+
+    showToast(message);
+
+
+    /*
+     * Permet de réimporter immédiatement
+     * le même fichier si nécessaire.
+     */
+
+    event.target.value = "";
+
+  };
+
+
+  /*
+   * UTF-8
+   */
 
   reader.readAsText(file, "UTF-8");
 }

@@ -1,0 +1,3392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>AS Claudie Haigneré - Rouillac</title>
+
+<style>
+/* =========================================================
+   VARIABLES
+========================================================= */
+:root {
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --text: #172033;
+  --muted: #718096;
+
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+
+  --green: #16a34a;
+  --green-light: #dcfce7;
+
+  --orange: #f97316;
+  --orange-light: #ffedd5;
+
+  --purple: #8b5cf6;
+  --purple-light: #ede9fe;
+
+  --pink: #ec4899;
+  --pink-light: #fce7f3;
+
+  --red: #ef4444;
+  --red-light: #fee2e2;
+
+  --yellow: #eab308;
+  --yellow-light: #fef9c3;
+
+  --border: #e5e7eb;
+
+  --shadow: 0 8px 25px rgba(15, 23, 42, .08);
+  --radius: 18px;
+}
+
+/* =========================================================
+   BASE
+========================================================= */
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  padding-bottom: 30px;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.app-header {
+  background: linear-gradient(135deg, #1d4ed8, #7c3aed, #ec4899);
+  color: white;
+  padding: 18px 16px 20px;
+  box-shadow: 0 5px 20px rgba(37, 99, 235, .25);
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo {
+  width: 62px;
+  height: 62px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  flex-shrink: 0;
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 23px;
+  line-height: 1.1;
+}
+
+.header-title p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  opacity: .9;
+  font-weight: bold;
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.main-nav-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  background: white;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 15px rgba(0,0,0,.08);
+}
+
+.main-nav {
+  max-width: 1100px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  padding: 7px;
+}
+
+.main-nav-button {
+  min-height: 62px;
+  border-radius: 13px;
+  background: #f8fafc;
+  color: #475569;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  transition: .15s;
+  touch-action: manipulation;
+}
+
+.main-nav-button span {
+  font-size: 23px;
+  line-height: 1;
+}
+
+.main-nav-button strong {
+  font-size: 12px;
+}
+
+.main-nav-button.active {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+  box-shadow: 0 5px 12px rgba(37,99,235,.25);
+}
+
+.main-nav-button:active {
+  transform: scale(.96);
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 18px 14px 40px;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+.page-title {
+  margin: 5px 0 16px;
+}
+
+.page-title h2 {
+  margin: 0;
+  font-size: 25px;
+}
+
+.page-title p {
+  margin: 5px 0 0;
+  color: var(--muted);
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  padding: 17px;
+  margin-bottom: 15px;
+}
+
+.card h3 {
+  margin: 0 0 12px;
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 17px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.stat-icon {
+  font-size: 28px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 27px;
+  font-weight: 900;
+  margin-top: 5px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* =========================================================
+   QUICK ACTIONS
+========================================================= */
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.quick-action {
+  min-height: 105px;
+  border-radius: 18px;
+  color: white;
+  padding: 15px;
+  text-align: left;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  transition: .15s;
+  touch-action: manipulation;
+}
+
+.quick-action:active {
+  transform: scale(.97);
+}
+
+.quick-action .icon {
+  font-size: 30px;
+}
+
+.quick-action strong {
+  font-size: 17px;
+}
+
+.quick-action small {
+  opacity: .9;
+}
+
+.quick-blue {
+  background: linear-gradient(135deg,#2563eb,#3b82f6);
+}
+
+.quick-purple {
+  background: linear-gradient(135deg,#7c3aed,#a855f7);
+}
+
+.quick-orange {
+  background: linear-gradient(135deg,#ea580c,#f97316);
+}
+
+/* =========================================================
+   ACTIVITIES
+========================================================= */
+
+.activities-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.activity-card {
+  padding: 15px;
+  border-radius: 16px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.activity-icon {
+  font-size: 30px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.activity-count {
+  display: block;
+  font-size: 22px;
+  margin-top: 5px;
+}
+
+/* =========================================================
+   APPEL
+========================================================= */
+
+.toolbar {
+  background: white;
+  border-radius: 18px;
+  padding: 15px;
+  box-shadow: var(--shadow);
+  margin-bottom: 15px;
+}
+
+.toolbar-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.field label {
+  display: block;
+  font-weight: bold;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 8px 10px;
+  background: #f8fafc;
+  font-size: 16px;
+  outline: none;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--primary);
+  background: white;
+}
+
+.save-button {
+  width: 100%;
+  min-height: 65px;
+  margin-top: 12px;
+  border-radius: 15px;
+  background: linear-gradient(135deg,#16a34a,#22c55e);
+  color: white;
+  font-size: 19px;
+  font-weight: 900;
+  box-shadow: 0 5px 15px rgba(22,163,74,.25);
+  touch-action: manipulation;
+}
+
+.save-button:active {
+  transform: scale(.98);
+}
+
+.appel-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #eff6ff;
+  border-radius: 13px;
+  padding: 12px 15px;
+  margin-bottom: 12px;
+}
+
+.presence-counter {
+  font-size: 21px;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.students-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.student-row {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  min-height: 67px;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-avatar {
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#2563eb,#7c3aed);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.student-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.student-name {
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.student-class {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.presence-button {
+  width: 58px;
+  height: 52px;
+  border-radius: 13px;
+  background: #e5e7eb;
+  color: #64748b;
+  font-size: 20px;
+  font-weight: 900;
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+
+.presence-button.present {
+  background: #22c55e;
+  color: white;
+  box-shadow: 0 4px 10px rgba(34,197,94,.3);
+}
+
+.presence-button:active {
+  transform: scale(.93);
+}
+
+/* =========================================================
+   APPEL ACTIONS
+========================================================= */
+
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.secondary-button {
+  min-height: 48px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  color: #334155;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.secondary-button.danger {
+  background: var(--red-light);
+  color: #b91c1c;
+}
+
+/* =========================================================
+   BILAN
+========================================================= */
+
+.bilan-student {
+  background: white;
+  border-radius: 17px;
+  border: 1px solid var(--border);
+  padding: 15px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+
+.bilan-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bilan-name {
+  flex: 1;
+}
+
+.bilan-name strong {
+  display: block;
+  font-size: 17px;
+}
+
+.bilan-name small {
+  color: var(--muted);
+}
+
+.total-presence {
+  background: var(--green-light);
+  color: #15803d;
+  border-radius: 12px;
+  padding: 8px 12px;
+  text-align: center;
+  font-weight: 900;
+}
+
+.activity-bars {
+  margin-top: 13px;
+  display: grid;
+  gap: 6px;
+}
+
+.activity-line {
+  display: grid;
+  grid-template-columns: 105px 1fr 30px;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+}
+
+.bar-background {
+  height: 9px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg,#2563eb,#8b5cf6);
+  border-radius: 10px;
+}
+
+/* =========================================================
+   ELEVES
+========================================================= */
+
+.student-management {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.management-button {
+  min-height: 60px;
+  border-radius: 14px;
+  font-weight: 900;
+  font-size: 15px;
+}
+
+.management-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.management-green {
+  background: #16a34a;
+  color: white;
+}
+
+.management-orange {
+  background: #f97316;
+  color: white;
+}
+
+.management-purple {
+  background: #8b5cf6;
+  color: white;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15,23,42,.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal {
+  width: 100%;
+  max-width: 650px;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 22px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  padding: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.close-button {
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 23px;
+  font-weight: bold;
+}
+
+.add-student-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 100px auto;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+
+.add-student-form input {
+  min-height: 45px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  font-size: 15px;
+}
+
+.add-student-form button {
+  border-radius: 10px;
+  background: #16a34a;
+  color: white;
+  font-weight: 900;
+  padding: 0 14px;
+}
+
+.roster-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.roster-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.roster-row-info {
+  flex: 1;
+}
+
+.delete-student {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 18px;
+}
+
+.import-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 15px;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.import-zone label {
+  display: inline-block;
+  padding: 11px 15px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.import-zone input {
+  display: none;
+}
+
+.export-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.export-buttons button {
+  min-height: 45px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 25px;
+  transform: translateX(-50%) translateY(100px);
+  z-index: 11000;
+  background: #172033;
+  color: white;
+  padding: 13px 18px;
+  border-radius: 13px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.25);
+  font-weight: bold;
+  transition: .25s;
+  max-width: 90%;
+  text-align: center;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.empty {
+  text-align: center;
+  padding: 35px 15px;
+  color: var(--muted);
+}
+
+.empty-icon {
+  font-size: 50px;
+  margin-bottom: 10px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 750px) {
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .activities-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .toolbar-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .add-student-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .add-student-form button {
+    min-height: 45px;
+  }
+}
+
+@media (max-width: 430px) {
+
+  .app-header {
+    padding: 14px 12px;
+  }
+
+  .logo {
+    width: 52px;
+    height: 52px;
+    font-size: 28px;
+  }
+
+  .header-title h1 {
+    font-size: 19px;
+  }
+
+  .header-title p {
+    font-size: 11px;
+  }
+
+  .main-nav-button {
+    min-height: 57px;
+  }
+
+  .main-nav-button span {
+    font-size: 21px;
+  }
+
+  .main-nav-button strong {
+    font-size: 10px;
+  }
+
+  main {
+    padding: 14px 10px 30px;
+  }
+
+  .student-row {
+    padding: 8px;
+  }
+
+  .student-name {
+    font-size: 14px;
+  }
+
+  .student-avatar {
+    width: 39px;
+    height: 39px;
+  }
+
+  .presence-button {
+    width: 54px;
+    height: 48px;
+  }
+
+  .activity-line {
+    grid-template-columns: 85px 1fr 25px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="app-header">
+  <div class="header-inner">
+
+    <div class="logo">🏆</div>
+
+    <div class="header-title">
+      <h1>AS CLAUDIE HAIGNERÉ</h1>
+      <p>ROUILLAC • BOUGE • PARTICIPE • PROGRESSE</p>
+    </div>
+
+  </div>
+</header>
+
+
+<!-- =====================================================
+     NAVIGATION PRINCIPALE
+===================================================== -->
+
+<div class="main-nav-wrapper">
+
+  <nav class="main-nav">
+
+    <button
+      id="nav-home"
+      class="main-nav-button active"
+      type="button"
+      onclick="showPage('home')">
+
+      <span>🏠</span>
+      <strong>Accueil</strong>
+
+    </button>
+
+
+    <button
+      id="nav-appel"
+      class="main-nav-button"
+      type="button"
+      onclick="showPage('appel')">
+
+      <span>📋</span>
+      <strong>Appel</strong>
+
+    </button>
+
+
+    <button
+      id="nav-bilan"
+      class="main-nav-button"
+      type="button"
+      onclick="showPage('bilan')">
+
+      <span>📊</span>
+      <strong>Bilan</strong>
+
+    </button>
+
+
+    <button
+      class="main-nav-button"
+      type="button"
+      onclick="openRosterModal()">
+
+      <span>👥</span>
+      <strong>Élèves</strong>
+
+    </button>
+
+  </nav>
+
+</div>
+
+
+<!-- =====================================================
+     CONTENU
+===================================================== -->
+
+<main>
+
+
+<!-- =====================================================
+     PAGE ACCUEIL
+===================================================== -->
+
+<section id="page-home" class="page active">
+
+  <div class="page-title">
+    <h2>👋 Bienvenue !</h2>
+    <p>Gestion de l'Association Sportive</p>
+  </div>
+
+
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <span id="stat-students" class="stat-number">0</span>
+      <span class="stat-label">Élèves</span>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <span id="stat-sessions" class="stat-number">0</span>
+      <span class="stat-label">Séances</span>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <span id="stat-presences" class="stat-number">0</span>
+      <span class="stat-label">Présences</span>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📈</div>
+      <span id="stat-rate" class="stat-number">0%</span>
+      <span class="stat-label">Assiduité</span>
+    </div>
+
+  </div>
+
+
+  <!-- ACTIONS RAPIDES -->
+
+  <div class="quick-actions">
+
+    <button
+      class="quick-action quick-blue"
+      type="button"
+      onclick="showPage('appel')">
+
+      <span class="icon">📋</span>
+      <strong>Faire l'appel</strong>
+      <small>Marquer les présents</small>
+
+    </button>
+
+
+    <button
+      class="quick-action quick-purple"
+      type="button"
+      onclick="showPage('bilan')">
+
+      <span class="icon">📊</span>
+      <strong>Voir le bilan</strong>
+      <small>Suivre les présences</small>
+
+    </button>
+
+
+    <button
+      class="quick-action quick-orange"
+      type="button"
+      onclick="openRosterModal()">
+
+      <span class="icon">👥</span>
+      <strong>Gérer les élèves</strong>
+      <small>Ajouter / modifier</small>
+
+    </button>
+
+  </div>
+
+
+  <!-- TOP ÉLÈVES -->
+
+  <div class="card">
+
+    <h3>🏅 Élèves les plus assidus</h3>
+
+    <div id="top-students"></div>
+
+  </div>
+
+
+  <!-- ACTIVITÉS -->
+
+  <div class="card">
+
+    <h3>🏃 Activités</h3>
+
+    <div id="activity-cards" class="activities-grid"></div>
+
+  </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     PAGE APPEL
+===================================================== -->
+
+<section id="page-appel" class="page">
+
+  <div class="page-title">
+    <h2>📋 Appel</h2>
+    <p>Marque les élèves présents à la séance.</p>
+  </div>
+
+
+  <div class="toolbar">
+
+    <div class="toolbar-grid">
+
+      <div class="field">
+
+        <label for="appel-date">📅 Date</label>
+
+        <input
+          id="appel-date"
+          type="date"
+          onchange="updateActivityFromDate()">
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="appel-group">👥 Groupe</label>
+
+        <select
+          id="appel-group"
+          onchange="renderAppel()">
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="appel-activity">🏃 Activité</label>
+
+        <select
+          id="appel-activity">
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="save-button"
+      type="button"
+      onclick="saveSession()">
+
+      💾 SAUVEGARDER L'APPEL
+
+    </button>
+
+  </div>
+
+
+  <div class="action-row">
+
+    <button
+      class="secondary-button"
+      type="button"
+      onclick="setAllPresent()">
+
+      ✅ Tous présents
+
+    </button>
+
+
+    <button
+      class="secondary-button danger"
+      type="button"
+      onclick="clearCurrentSession()">
+
+      ❌ Tout effacer
+
+    </button>
+
+  </div>
+
+
+  <div class="appel-info">
+
+    <div>
+      <strong>Présences</strong>
+    </div>
+
+    <div
+      id="presence-counter"
+      class="presence-counter">
+
+      0 / 0
+
+    </div>
+
+  </div>
+
+
+  <div id="students-list" class="students-list"></div>
+
+</section>
+
+
+
+<!-- =====================================================
+     PAGE BILAN
+===================================================== -->
+
+<section id="page-bilan" class="page">
+
+  <div class="page-title">
+    <h2>📊 Bilan des présences</h2>
+    <p>Suivi individuel des élèves de l'AS.</p>
+  </div>
+
+
+  <div class="toolbar">
+
+    <div class="toolbar-grid">
+
+      <div class="field">
+
+        <label for="bilan-group">👥 Filtrer par classe</label>
+
+        <select
+          id="bilan-group"
+          onchange="renderBilan()">
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="bilan-search">🔎 Rechercher</label>
+
+        <input
+          id="bilan-search"
+          type="search"
+          placeholder="Nom ou prénom..."
+          oninput="renderBilan()">
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div id="bilan-list"></div>
+
+</section>
+
+</main>
+
+
+
+<!-- =====================================================
+     MODAL GESTION DES ÉLÈVES
+===================================================== -->
+
+<div
+  id="roster-modal"
+  class="modal-overlay"
+  onclick="outsideModal(event)">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>👥 Gestion des élèves</h2>
+
+      <button
+        class="close-button"
+        type="button"
+        onclick="closeRosterModal()">
+
+        ×
+
+      </button>
+
+    </div>
+
+
+    <!-- AJOUT -->
+
+    <h3>➕ Ajouter un élève</h3>
+
+    <div class="add-student-form">
+
+      <input
+        id="new-lastname"
+        type="text"
+        placeholder="Nom">
+
+      <input
+        id="new-firstname"
+        type="text"
+        placeholder="Prénom">
+
+      <input
+        id="new-class"
+        type="text"
+        placeholder="Classe">
+
+      <button
+        type="button"
+        onclick="addStudent()">
+
+        Ajouter
+
+      </button>
+
+    </div>
+
+
+    <!-- LISTE -->
+
+    <h3>👤 Liste des élèves</h3>
+
+    <div id="roster-list" class="roster-list"></div>
+
+
+    <!-- IMPORT -->
+
+    <div class="import-zone">
+
+      <strong>📥 Importer une liste CSV</strong>
+
+      <p style="font-size:12px;color:#718096;">
+        Format : Nom;Prénom;Classe
+      </p>
+
+      <label for="csv-file">
+        Choisir un fichier
+      </label>
+
+      <input
+        id="csv-file"
+        type="file"
+        accept=".csv,text/csv"
+        onchange="importCSV(event)">
+
+    </div>
+
+
+    <!-- EXPORT -->
+
+    <div class="export-buttons">
+
+      <button
+        type="button"
+        style="background:#dbeafe;color:#1d4ed8;"
+        onclick="exportStudentsCSV()">
+
+        📤 Export élèves
+
+      </button>
+
+
+      <button
+        type="button"
+        style="background:#dcfce7;color:#15803d;"
+        onclick="exportSessionsCSV()">
+
+        📤 Export présences
+
+      </button>
+
+
+      <button
+        type="button"
+        style="background:#ede9fe;color:#6d28d9;"
+        onclick="exportBackup()">
+
+        💾 Sauvegarde complète
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- TOAST -->
+
+<div id="toast" class="toast"></div>
+
+
+
+<script>
+/* =========================================================
+   STOCKAGE
+========================================================= */
+
+const ROSTER_KEY = "as_roster_v3";
+const SESSIONS_KEY = "as_sessions_v3";
+
+
+let roster = loadJSON(ROSTER_KEY, []);
+let sessions = loadJSON(SESSIONS_KEY, []);
+
+
+/* =========================================================
+   ACTIVITÉS
+========================================================= */
+
+const ACTIVITIES = {
+  lundi: {
+    name: "Futsal",
+    icon: "⚽",
+    color: "#dbeafe"
+  },
+
+  mardi: {
+    name: "Sports Collectifs",
+    icon: "🏀",
+    color: "#dcfce7"
+  },
+
+  mercredi: {
+    name: "Compétition",
+    icon: "🏆",
+    color: "#fef3c7"
+  },
+
+  jeudi: {
+    name: "Activités Artistiques",
+    icon: "🤸",
+    color: "#fce7f3"
+  },
+
+  vendredi: {
+    name: "Badminton",
+    icon: "🏸",
+    color: "#ede9fe"
+  }
+};
+
+
+/* =========================================================
+   OUTILS
+========================================================= */
+
+function loadJSON(key, fallback) {
+
+  try {
+
+    const value = localStorage.getItem(key);
+
+    if (!value) {
+      return fallback;
+    }
+
+    return JSON.parse(value);
+
+  } catch (error) {
+
+    console.error(error);
+
+    return fallback;
+  }
+}
+
+
+function saveData() {
+
+  localStorage.setItem(
+    ROSTER_KEY,
+    JSON.stringify(roster)
+  );
+
+  localStorage.setItem(
+    SESSIONS_KEY,
+    JSON.stringify(sessions)
+  );
+}
+
+
+function uid() {
+
+  return Date.now().toString(36) +
+    Math.random().toString(36).substring(2,8);
+}
+
+
+function escapeHTML(value) {
+
+  if (value === undefined || value === null) {
+    return "";
+  }
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+function initials(student) {
+
+  const first = student.firstname
+    ? student.firstname.charAt(0)
+    : "";
+
+  const last = student.lastname
+    ? student.lastname.charAt(0)
+    : "";
+
+  return (first + last).toUpperCase();
+}
+
+
+function displayName(student) {
+
+  return (
+    String(student.lastname || "").toUpperCase() +
+    " " +
+    String(student.firstname || "")
+  ).trim();
+}
+
+
+function todayISO() {
+
+  const date = new Date();
+
+  const year = date.getFullYear();
+
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2,"0");
+
+  const day = String(
+    date.getDate()
+  ).padStart(2,"0");
+
+  return `${year}-${month}-${day}`;
+}
+
+
+function formatDate(dateString) {
+
+  if (!dateString) {
+    return "";
+  }
+
+  const parts = dateString.split("-");
+
+  if (parts.length !== 3) {
+    return dateString;
+  }
+
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+
+function showToast(message) {
+
+  const toast = document.getElementById("toast");
+
+  toast.textContent = message;
+
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2200);
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function showPage(page) {
+
+  const pages = [
+    "home",
+    "appel",
+    "bilan"
+  ];
+
+  pages.forEach(name => {
+
+    const element =
+      document.getElementById("page-" + name);
+
+    if (!element) return;
+
+    element.classList.toggle(
+      "active",
+      name === page
+    );
+  });
+
+
+  document
+    .querySelectorAll(".main-nav-button")
+    .forEach(button => {
+
+      button.classList.remove("active");
+
+    });
+
+
+  const navButton =
+    document.getElementById("nav-" + page);
+
+  if (navButton) {
+    navButton.classList.add("active");
+  }
+
+
+  if (page === "home") {
+    renderHome();
+  }
+
+  if (page === "appel") {
+    renderAppel();
+  }
+
+  if (page === "bilan") {
+    renderBilan();
+  }
+
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+
+/* =========================================================
+   ACTIVITÉ SELON LE JOUR
+========================================================= */
+
+function activityForDate(dateString) {
+
+  if (!dateString) {
+    return null;
+  }
+
+  const date = new Date(
+    dateString + "T12:00:00"
+  );
+
+  const day = date.getDay();
+
+  switch(day) {
+
+    case 1:
+      return "lundi";
+
+    case 2:
+      return "mardi";
+
+    case 3:
+      return "mercredi";
+
+    case 4:
+      return "jeudi";
+
+    case 5:
+      return "vendredi";
+
+    default:
+      return null;
+  }
+}
+
+
+function renderActivitySelect() {
+
+  const select =
+    document.getElementById("appel-activity");
+
+  select.innerHTML = "";
+
+  Object.entries(ACTIVITIES).forEach(
+    ([key, activity]) => {
+
+      const option =
+        document.createElement("option");
+
+      option.value = key;
+
+      option.textContent =
+        `${activity.icon} ${activity.name}`;
+
+      select.appendChild(option);
+
+    }
+  );
+}
+
+
+function updateActivityFromDate() {
+
+  const date =
+    document.getElementById("appel-date").value;
+
+  const activity =
+    activityForDate(date);
+
+  if (activity) {
+
+    document.getElementById(
+      "appel-activity"
+    ).value = activity;
+
+  }
+
+  renderAppel();
+}
+
+
+/* =========================================================
+   GROUPES
+========================================================= */
+
+function getGroups() {
+
+  const groups = new Set();
+
+  roster.forEach(student => {
+
+    if (student.class) {
+      groups.add(student.class);
+    }
+
+  });
+
+  return Array.from(groups).sort(
+    (a,b) =>
+      a.localeCompare(b, "fr", {
+        numeric: true
+      })
+  );
+}
+
+
+function renderGroupSelects() {
+
+  const groups = getGroups();
+
+
+  const appelSelect =
+    document.getElementById("appel-group");
+
+  const bilanSelect =
+    document.getElementById("bilan-group");
+
+
+  const previousAppel =
+    appelSelect.value;
+
+  const previousBilan =
+    bilanSelect.value;
+
+
+  appelSelect.innerHTML =
+    `<option value="">Toutes les classes</option>`;
+
+
+  bilanSelect.innerHTML =
+    `<option value="">Toutes les classes</option>`;
+
+
+  groups.forEach(group => {
+
+    const option1 =
+      document.createElement("option");
+
+    option1.value = group;
+    option1.textContent = group;
+
+    appelSelect.appendChild(option1);
+
+
+    const option2 =
+      document.createElement("option");
+
+    option2.value = group;
+    option2.textContent = group;
+
+    bilanSelect.appendChild(option2);
+
+  });
+
+
+  if (
+    groups.includes(previousAppel)
+  ) {
+    appelSelect.value =
+      previousAppel;
+  }
+
+
+  if (
+    groups.includes(previousBilan)
+  ) {
+    bilanSelect.value =
+      previousBilan;
+  }
+}
+
+
+/* =========================================================
+   SESSION COURANTE
+========================================================= */
+
+function getCurrentSession() {
+
+  const date =
+    document.getElementById("appel-date").value;
+
+  const group =
+    document.getElementById("appel-group").value;
+
+  const activity =
+    document.getElementById("appel-activity").value;
+
+
+  return sessions.find(session =>
+
+    session.date === date &&
+    session.group === group &&
+    session.activity === activity
+
+  );
+}
+
+
+/* =========================================================
+   APPEL
+========================================================= */
+
+function renderAppel() {
+
+  const dateInput =
+    document.getElementById("appel-date");
+
+  if (!dateInput.value) {
+    dateInput.value = todayISO();
+  }
+
+
+  renderGroupSelects();
+
+
+  const group =
+    document.getElementById("appel-group").value;
+
+
+  const list =
+    document.getElementById("students-list");
+
+
+  let students =
+    [...roster].sort((a,b) =>
+      displayName(a).localeCompare(
+        displayName(b),
+        "fr"
+      )
+    );
+
+
+  if (group) {
+
+    students =
+      students.filter(
+        student =>
+          student.class === group
+      );
+
+  }
+
+
+  const session =
+    getCurrentSession();
+
+
+  const presenceIds =
+    session?.presenceIds || [];
+
+
+  document.getElementById(
+    "presence-counter"
+  ).textContent =
+    `${presenceIds.length} / ${students.length}`;
+
+
+  if (!students.length) {
+
+    list.innerHTML = `
+      <div class="card empty">
+        <div class="empty-icon">👥</div>
+        <strong>Aucun élève trouvé</strong>
+        <p>Ajoute des élèves avec le bouton 👥 Élèves.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+
+  list.innerHTML =
+    students.map(student => {
+
+      const present =
+        presenceIds.includes(student.id);
+
+
+      return `
+        <div class="student-row">
+
+          <div class="student-avatar">
+            ${escapeHTML(initials(student))}
+          </div>
+
+          <div class="student-info">
+
+            <div class="student-name">
+              ${escapeHTML(displayName(student))}
+            </div>
+
+            <div class="student-class">
+              ${escapeHTML(student.class || "")}
+            </div>
+
+          </div>
+
+          <button
+            class="presence-button ${present ? "present" : ""}"
+            type="button"
+            onclick="togglePresence('${student.id}')">
+
+            ${present ? "✓" : "P"}
+
+          </button>
+
+        </div>
+      `;
+
+    }).join("");
+}
+
+
+/* =========================================================
+   PRÉSENCE
+========================================================= */
+
+function togglePresence(studentId) {
+
+  const date =
+    document.getElementById("appel-date").value;
+
+  const group =
+    document.getElementById("appel-group").value;
+
+  const activity =
+    document.getElementById("appel-activity").value;
+
+
+  let session =
+    sessions.find(s =>
+      s.date === date &&
+      s.group === group &&
+      s.activity === activity
+    );
+
+
+  if (!session) {
+
+    session = {
+      id: uid(),
+      date: date,
+      group: group,
+      activity: activity,
+      presenceIds: []
+    };
+
+    sessions.push(session);
+  }
+
+
+  if (!session.presenceIds) {
+    session.presenceIds = [];
+  }
+
+
+  const index =
+    session.presenceIds.indexOf(studentId);
+
+
+  if (index >= 0) {
+
+    session.presenceIds.splice(index,1);
+
+  } else {
+
+    session.presenceIds.push(studentId);
+
+  }
+
+
+  saveData();
+
+  renderAppel();
+}
+
+
+function setAllPresent() {
+
+  const date =
+    document.getElementById("appel-date").value;
+
+  const group =
+    document.getElementById("appel-group").value;
+
+  const activity =
+    document.getElementById("appel-activity").value;
+
+
+  const students =
+    roster.filter(student =>
+      !group || student.class === group
+    );
+
+
+  let session =
+    sessions.find(s =>
+      s.date === date &&
+      s.group === group &&
+      s.activity === activity
+    );
+
+
+  if (!session) {
+
+    session = {
+      id: uid(),
+      date,
+      group,
+      activity,
+      presenceIds: []
+    };
+
+    sessions.push(session);
+  }
+
+
+  session.presenceIds =
+    students.map(student => student.id);
+
+
+  saveData();
+
+  renderAppel();
+
+  showToast("Tous les élèves sont présents ✅");
+}
+
+
+function clearCurrentSession() {
+
+  const date =
+    document.getElementById("appel-date").value;
+
+  const group =
+    document.getElementById("appel-group").value;
+
+  const activity =
+    document.getElementById("appel-activity").value;
+
+
+  const session =
+    sessions.find(s =>
+      s.date === date &&
+      s.group === group &&
+      s.activity === activity
+    );
+
+
+  if (session) {
+    session.presenceIds = [];
+  }
+
+
+  saveData();
+
+  renderAppel();
+
+  showToast("Appel effacé");
+}
+
+
+/* =========================================================
+   SAUVEGARDE APPEL
+========================================================= */
+
+function saveSession() {
+
+  const date =
+    document.getElementById("appel-date").value;
+
+  const group =
+    document.getElementById("appel-group").value;
+
+  const activity =
+    document.getElementById("appel-activity").value;
+
+
+  if (!date) {
+
+    showToast("Choisis une date.");
+
+    return;
+  }
+
+
+  let session =
+    sessions.find(s =>
+      s.date === date &&
+      s.group === group &&
+      s.activity === activity
+    );
+
+
+  if (!session) {
+
+    session = {
+      id: uid(),
+      date,
+      group,
+      activity,
+      presenceIds: []
+    };
+
+    sessions.push(session);
+  }
+
+
+  saveData();
+
+  showToast("Appel sauvegardé 💾");
+
+  renderHome();
+}
+
+
+/* =========================================================
+   STATISTIQUES
+========================================================= */
+
+function getStats() {
+
+  let totalPresences = 0;
+
+  sessions.forEach(session => {
+
+    if (session.presenceIds) {
+
+      totalPresences +=
+        session.presenceIds.length;
+
+    }
+
+  });
+
+
+  const totalPossible =
+    sessions.reduce(
+      (total, session) => {
+
+        const count =
+          roster.filter(student =>
+            !session.group ||
+            student.class === session.group
+          ).length;
+
+        return total + count;
+
+      },
+      0
+    );
+
+
+  const rate =
+    totalPossible > 0
+      ? Math.round(
+          totalPresences /
+          totalPossible *
+          100
+        )
+      : 0;
+
+
+  return {
+    students: roster.length,
+    sessions: sessions.length,
+    presences: totalPresences,
+    rate
+  };
+}
+
+
+function getStudentPresenceCount(studentId) {
+
+  let count = 0;
+
+  sessions.forEach(session => {
+
+    if (
+      session.presenceIds &&
+      session.presenceIds.includes(studentId)
+    ) {
+      count++;
+    }
+
+  });
+
+  return count;
+}
+
+
+function getStudentActivityCounts(studentId) {
+
+  const counts = {};
+
+  Object.keys(ACTIVITIES).forEach(key => {
+    counts[key] = 0;
+  });
+
+
+  sessions.forEach(session => {
+
+    if (
+      session.presenceIds &&
+      session.presenceIds.includes(studentId)
+    ) {
+
+      if (counts[session.activity] !== undefined) {
+        counts[session.activity]++;
+      }
+
+    }
+
+  });
+
+
+  return counts;
+}
+
+
+/* =========================================================
+   ACCUEIL
+========================================================= */
+
+function renderHome() {
+
+  const stats = getStats();
+
+
+  document.getElementById(
+    "stat-students"
+  ).textContent = stats.students;
+
+
+  document.getElementById(
+    "stat-sessions"
+  ).textContent = stats.sessions;
+
+
+  document.getElementById(
+    "stat-presences"
+  ).textContent = stats.presences;
+
+
+  document.getElementById(
+    "stat-rate"
+  ).textContent = stats.rate + "%";
+
+
+  renderTopStudents();
+
+  renderActivityCards();
+}
+
+
+function renderTopStudents() {
+
+  const container =
+    document.getElementById("top-students");
+
+
+  const students =
+    roster
+      .map(student => ({
+        student,
+        count:
+          getStudentPresenceCount(
+            student.id
+          )
+      }))
+      .sort(
+        (a,b) => b.count - a.count
+      )
+      .slice(0,5);
+
+
+  if (!students.length) {
+
+    container.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">🏃</div>
+        Aucun élève pour le moment.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    students.map((item,index) => {
+
+      const student = item.student;
+
+      return `
+        <div
+          class="student-row"
+          style="margin-bottom:7px;">
+
+          <div
+            class="student-avatar"
+            style="
+              background:
+              linear-gradient(
+                135deg,
+                ${index === 0 ? "#f59e0b" :
+                  index === 1 ? "#94a3b8" :
+                  index === 2 ? "#b45309" :
+                  "#2563eb"},
+                #7c3aed
+              );
+            ">
+
+            ${index + 1}
+
+          </div>
+
+          <div class="student-info">
+
+            <div class="student-name">
+              ${escapeHTML(displayName(student))}
+            </div>
+
+            <div class="student-class">
+              ${escapeHTML(student.class || "")}
+            </div>
+
+          </div>
+
+          <div class="total-presence">
+            ${item.count} présence${item.count > 1 ? "s" : ""}
+          </div>
+
+        </div>
+      `;
+
+    }).join("");
+}
+
+
+function renderActivityCards() {
+
+  const container =
+    document.getElementById(
+      "activity-cards"
+    );
+
+
+  container.innerHTML =
+    Object.entries(ACTIVITIES)
+      .map(([key,activity]) => {
+
+        const count =
+          sessions.filter(
+            session =>
+              session.activity === key
+          ).length;
+
+
+        return `
+          <div
+            class="activity-card"
+            style="
+              background:${activity.color};
+            ">
+
+            <span class="activity-icon">
+              ${activity.icon}
+            </span>
+
+            <span>
+              ${escapeHTML(activity.name)}
+            </span>
+
+            <span class="activity-count">
+              ${count}
+            </span>
+
+          </div>
+        `;
+
+      })
+      .join("");
+}
+
+
+/* =========================================================
+   BILAN
+========================================================= */
+
+function renderBilan() {
+
+  renderGroupSelects();
+
+
+  const container =
+    document.getElementById(
+      "bilan-list"
+    );
+
+
+  const group =
+    document.getElementById(
+      "bilan-group"
+    ).value;
+
+
+  const search =
+    (
+      document.getElementById(
+        "bilan-search"
+      ).value || ""
+    ).toLowerCase();
+
+
+  let students =
+    [...roster].sort((a,b) =>
+      displayName(a).localeCompare(
+        displayName(b),
+        "fr"
+      )
+    );
+
+
+  if (group) {
+
+    students =
+      students.filter(
+        student =>
+          student.class === group
+      );
+
+  }
+
+
+  if (search) {
+
+    students =
+      students.filter(student =>
+        displayName(student)
+          .toLowerCase()
+          .includes(search)
+      );
+
+  }
+
+
+  if (!students.length) {
+
+    container.innerHTML = `
+      <div class="card empty">
+
+        <div class="empty-icon">
+          📊
+        </div>
+
+        <strong>
+          Aucun élève trouvé
+        </strong>
+
+        <p>
+          Modifie tes filtres ou ajoute des élèves.
+        </p>
+
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    students.map(student => {
+
+      const total =
+        getStudentPresenceCount(
+          student.id
+        );
+
+
+      const counts =
+        getStudentActivityCounts(
+          student.id
+        );
+
+
+      const max =
+        Math.max(
+          1,
+          ...Object.values(counts)
+        );
+
+
+      return `
+        <div class="bilan-student">
+
+          <div class="bilan-header">
+
+            <div
+              class="student-avatar">
+
+              ${escapeHTML(initials(student))}
+
+            </div>
+
+
+            <div class="bilan-name">
+
+              <strong>
+                ${escapeHTML(displayName(student))}
+              </strong>
+
+              <small>
+                ${escapeHTML(student.class || "")}
+              </small>
+
+            </div>
+
+
+            <div class="total-presence">
+
+              ${total}
+
+              <small>
+                présence${total > 1 ? "s" : ""}
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <div class="activity-bars">
+
+            ${Object.entries(ACTIVITIES)
+              .map(([key,activity]) => {
+
+                const value =
+                  counts[key] || 0;
+
+                const width =
+                  Math.round(
+                    value / max * 100
+                  );
+
+
+                return `
+                  <div class="activity-line">
+
+                    <span>
+                      ${activity.icon}
+                      ${escapeHTML(activity.name)}
+                    </span>
+
+                    <div
+                      class="bar-background">
+
+                      <div
+                        class="bar-fill"
+                        style="width:${width}%">
+                      </div>
+
+                    </div>
+
+                    <strong>
+                      ${value}
+                    </strong>
+
+                  </div>
+                `;
+
+              })
+              .join("")}
+
+          </div>
+
+        </div>
+      `;
+
+    }).join("");
+}
+
+
+/* =========================================================
+   MODAL ÉLÈVES
+========================================================= */
+
+function openRosterModal() {
+
+  const modal =
+    document.getElementById(
+      "roster-modal"
+    );
+
+
+  renderRoster();
+
+
+  modal.classList.add("show");
+
+
+  setTimeout(() => {
+
+    document.getElementById(
+      "new-lastname"
+    ).focus();
+
+  },100);
+}
+
+
+function closeRosterModal() {
+
+  document
+    .getElementById(
+      "roster-modal"
+    )
+    .classList.remove("show");
+}
+
+
+function outsideModal(event) {
+
+  if (
+    event.target.id ===
+    "roster-modal"
+  ) {
+
+    closeRosterModal();
+
+  }
+}
+
+
+/* =========================================================
+   AJOUT ÉLÈVE
+========================================================= */
+
+function addStudent() {
+
+  const lastname =
+    document.getElementById(
+      "new-lastname"
+    ).value.trim();
+
+
+  const firstname =
+    document.getElementById(
+      "new-firstname"
+    ).value.trim();
+
+
+  const studentClass =
+    document.getElementById(
+      "new-class"
+    ).value.trim();
+
+
+  if (!lastname || !firstname) {
+
+    showToast(
+      "Indique au minimum le nom et le prénom."
+    );
+
+    return;
+  }
+
+
+  roster.push({
+
+    id: uid(),
+
+    lastname,
+
+    firstname,
+
+    class: studentClass
+
+  });
+
+
+  saveData();
+
+
+  document.getElementById(
+    "new-lastname"
+  ).value = "";
+
+
+  document.getElementById(
+    "new-firstname"
+  ).value = "";
+
+
+  document.getElementById(
+    "new-class"
+  ).value = "";
+
+
+  renderRoster();
+
+  renderGroupSelects();
+
+  renderHome();
+
+  showToast("Élève ajouté ✅");
+}
+
+
+/* =========================================================
+   LISTE ÉLÈVES
+========================================================= */
+
+function renderRoster() {
+
+  const container =
+    document.getElementById(
+      "roster-list"
+    );
+
+
+  const students =
+    [...roster].sort((a,b) =>
+      displayName(a).localeCompare(
+        displayName(b),
+        "fr"
+      )
+    );
+
+
+  if (!students.length) {
+
+    container.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">👥</div>
+        Aucun élève enregistré.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    students.map(student => {
+
+      return `
+        <div class="roster-row">
+
+          <div class="student-avatar">
+            ${escapeHTML(initials(student))}
+          </div>
+
+          <div class="roster-row-info">
+
+            <strong>
+              ${escapeHTML(displayName(student))}
+            </strong>
+
+            <small>
+              ${escapeHTML(student.class || "")}
+            </small>
+
+          </div>
+
+          <button
+            class="delete-student"
+            type="button"
+            onclick="deleteStudent('${student.id}')">
+
+            🗑️
+
+          </button>
+
+        </div>
+      `;
+
+    }).join("");
+}
+
+
+/* =========================================================
+   SUPPRESSION
+========================================================= */
+
+function deleteStudent(id) {
+
+  const student =
+    roster.find(
+      s => s.id === id
+    );
+
+
+  if (!student) {
+    return;
+  }
+
+
+  const confirmed =
+    confirm(
+      `Supprimer ${displayName(student)} ?`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  roster =
+    roster.filter(
+      s => s.id !== id
+    );
+
+
+  /*
+   On retire également l'élève
+   des présences enregistrées.
+  */
+
+  sessions.forEach(session => {
+
+    if (session.presenceIds) {
+
+      session.presenceIds =
+        session.presenceIds.filter(
+          studentId =>
+            studentId !== id
+        );
+
+    }
+
+  });
+
+
+  saveData();
+
+  renderRoster();
+
+  renderGroupSelects();
+
+  renderHome();
+
+  renderAppel();
+
+  renderBilan();
+
+  showToast("Élève supprimé");
+}
+
+
+/* =========================================================
+   IMPORT CSV
+========================================================= */
+
+function parseCSVLine(line) {
+
+  const result = [];
+
+  let current = "";
+
+  let insideQuotes = false;
+
+
+  for (
+    let i = 0;
+    i < line.length;
+    i++
+  ) {
+
+    const char = line[i];
+
+
+    if (char === '"') {
+
+      if (
+        insideQuotes &&
+        line[i + 1] === '"'
+      ) {
+
+        current += '"';
+
+        i++;
+
+      } else {
+
+        insideQuotes =
+          !insideQuotes;
+
+      }
+
+    } else if (
+      char === ";" &&
+      !insideQuotes
+    ) {
+
+      result.push(
+        current.trim()
+      );
+
+      current = "";
+
+    } else {
+
+      current += char;
+
+    }
+
+  }
+
+
+  result.push(
+    current.trim()
+  );
+
+
+  return result;
+}
+
+
+function importCSV(event) {
+
+  const file =
+    event.target.files[0];
+
+
+  if (!file) {
+    return;
+  }
+
+
+  const reader =
+    new FileReader();
+
+
+  reader.onload =
+    function(e) {
+
+      const text =
+        e.target.result;
+
+
+      const lines =
+        text.split(/\r?\n/)
+          .map(line => line.trim())
+          .filter(Boolean);
+
+
+      let added = 0;
+
+
+      lines.forEach(
+        (line,index) => {
+
+          const fields =
+            parseCSVLine(line);
+
+
+          /*
+           Ignore une éventuelle
+           ligne d'en-tête.
+          */
+
+          if (
+            index === 0 &&
+            fields[0]?.toLowerCase()
+              .includes("nom")
+          ) {
+            return;
+          }
+
+
+          if (
+            fields.length < 2
+          ) {
+            return;
+          }
+
+
+          const lastname =
+            fields[0] || "";
+
+
+          const firstname =
+            fields[1] || "";
+
+
+          const studentClass =
+            fields[2] || "";
+
+
+          if (
+            !lastname ||
+            !firstname
+          ) {
+            return;
+          }
+
+
+          /*
+           Évite les doublons
+          */
+
+          const exists =
+            roster.some(student =>
+
+              student.lastname
+                .toLowerCase() ===
+                lastname.toLowerCase() &&
+
+              student.firstname
+                .toLowerCase() ===
+                firstname.toLowerCase()
+
+            );
+
+
+          if (!exists) {
+
+            roster.push({
+
+              id: uid(),
+
+              lastname,
+
+              firstname,
+
+              class: studentClass
+
+            });
+
+
+            added++;
+
+          }
+
+        }
+      );
+
+
+      saveData();
+
+      renderRoster();
+
+      renderGroupSelects();
+
+      renderHome();
+
+      showToast(
+        `${added} élève${added > 1 ? "s" : ""} importé${added > 1 ? "s" : ""} ✅`
+      );
+
+
+      event.target.value = "";
+
+    };
+
+
+  reader.readAsText(file, "UTF-8");
+}
+
+
+/* =========================================================
+   EXPORT
+========================================================= */
+
+function csvEscape(value) {
+
+  const string =
+    String(value ?? "");
+
+
+  if (
+    string.includes(";") ||
+    string.includes('"') ||
+    string.includes("\n")
+  ) {
+
+    return '"' +
+      string.replace(
+        /"/g,
+        '""'
+      ) +
+      '"';
+
+  }
+
+
+  return string;
+}
+
+
+function downloadFile(
+  filename,
+  content,
+  type = "text/plain"
+) {
+
+  const blob =
+    new Blob(
+      [content],
+      {type}
+    );
+
+
+  const url =
+    URL.createObjectURL(blob);
+
+
+  const a =
+    document.createElement("a");
+
+
+  a.href = url;
+
+  a.download = filename;
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  a.remove();
+
+
+  setTimeout(() => {
+
+    URL.revokeObjectURL(url);
+
+  },1000);
+}
+
+
+function exportStudentsCSV() {
+
+  const lines = [
+    "Nom;Prénom;Classe"
+  ];
+
+
+  roster.forEach(student => {
+
+    lines.push(
+      [
+        student.lastname,
+        student.firstname,
+        student.class
+      ]
+      .map(csvEscape)
+      .join(";")
+    );
+
+  });
+
+
+  downloadFile(
+    "eleves_AS_Rouillac.csv",
+    "\uFEFF" + lines.join("\n"),
+    "text/csv;charset=utf-8"
+  );
+
+
+  showToast("Liste des élèves exportée 📤");
+}
+
+
+function exportSessionsCSV() {
+
+  const lines = [
+    "Date;Classe;Activité;Élève;Présent"
+  ];
+
+
+  sessions.forEach(session => {
+
+    const students =
+      roster.filter(student =>
+        !session.group ||
+        student.class === session.group
+      );
+
+
+    students.forEach(student => {
+
+      const present =
+        session.presenceIds &&
+        session.presenceIds.includes(
+          student.id
+        );
+
+
+      lines.push(
+        [
+          session.date,
+          session.group,
+          ACTIVITIES[session.activity]?.name ||
+            session.activity,
+          displayName(student),
+          present ? "P" : ""
+        ]
+        .map(csvEscape)
+        .join(";")
+      );
+
+    });
+
+  });
+
+
+  downloadFile(
+    "presences_AS_Rouillac.csv",
+    "\uFEFF" + lines.join("\n"),
+    "text/csv;charset=utf-8"
+  );
+
+
+  showToast("Présences exportées 📤");
+}
+
+
+function exportBackup() {
+
+  const backup = {
+
+    application:
+      "AS Claudie Haigneré Rouillac",
+
+    version:
+      "2026",
+
+    exportDate:
+      new Date().toISOString(),
+
+    roster,
+
+    sessions
+
+  };
+
+
+  downloadFile(
+    "sauvegarde_AS_Rouillac.json",
+    JSON.stringify(
+      backup,
+      null,
+      2
+    ),
+    "application/json"
+  );
+
+
+  showToast("Sauvegarde créée 💾");
+}
+
+
+/* =========================================================
+   INITIALISATION
+========================================================= */
+
+function init() {
+
+  /*
+   Date du jour
+  */
+
+  document.getElementById(
+    "appel-date"
+  ).value = todayISO();
+
+
+  /*
+   Activités
+  */
+
+  renderActivitySelect();
+
+
+  /*
+   Groupe
+  */
+
+  renderGroupSelects();
+
+
+  /*
+   Activité correspondant
+   au jour actuel
+  */
+
+  const activity =
+    activityForDate(
+      todayISO()
+    );
+
+
+  if (activity) {
+
+    document.getElementById(
+      "appel-activity"
+    ).value = activity;
+
+  }
+
+
+  /*
+   Affichage initial
+  */
+
+  renderHome();
+
+  renderAppel();
+
+  renderBilan();
+
+
+  /*
+   Touche Échap =
+   fermer le modal
+  */
+
+  document.addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key === "Escape"
+      ) {
+
+        closeRosterModal();
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   LANCEMENT
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  init
+);
+
+</script>
+
+</body>
+</html>

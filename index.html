@@ -890,7 +890,44 @@ main {
     grid-template-columns: 85px 1fr 25px;
   }
 }
+
+.save-buttons-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.pdf-button {
+  width: 100%;
+  min-height: 65px;
+  border-radius: 15px;
+  background: linear-gradient(135deg,#dc2626,#ef4444);
+  color: white;
+  font-size: 17px;
+  font-weight: 900;
+  box-shadow: 0 5px 15px rgba(220,38,38,.25);
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.pdf-button:active {
+  transform: scale(.98);
+}
+
+@media (max-width: 750px) {
+  .save-buttons-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body>
@@ -1142,14 +1179,21 @@ main {
     </div>
 
 
-    <button
-      class="save-button"
-      type="button"
-      onclick="saveSession()">
+    <div class="save-buttons-row">
+      <button
+        class="save-button"
+        type="button"
+        onclick="saveSession()">
+        💾 SAUVEGARDER L'APPEL
+      </button>
 
-      💾 SAUVEGARDER L'APPEL
-
-    </button>
+      <button
+        class="pdf-button"
+        type="button"
+        onclick="exportPresentPDF()">
+        📄 EXPORTER PDF PRÉSENTS
+      </button>
+    </div>
 
   </div>
 
@@ -2153,6 +2197,135 @@ function saveSession() {
   showToast("Appel sauvegardé 💾");
 
   renderHome();
+}
+
+
+
+/* =========================================================
+   EXPORT PDF DES PRÉSENTS
+========================================================= */
+
+function exportPresentPDF() {
+  const session = getCurrentSession();
+  const presenceIds = session && session.presenceIds ? session.presenceIds : [];
+
+  if (presenceIds.length === 0) {
+    showToast("Aucun élève présent à exporter !");
+    return;
+  }
+
+  // Filtrer les élèves présents
+  const presentStudents = roster.filter(student => presenceIds.includes(student.id));
+
+  // Tri alphabétique : NOM puis Prénom
+  presentStudents.sort((a, b) => {
+    const compNom = String(a.lastname || "").localeCompare(String(b.lastname || ""), "fr", { sensitivity: "base" });
+    if (compNom !== 0) return compNom;
+    return String(a.firstname || "").localeCompare(String(b.firstname || ""), "fr", { sensitivity: "base" });
+  });
+
+  const dateVal = document.getElementById("appel-date").value;
+  const dateStr = formatDate(dateVal);
+  const groupVal = document.getElementById("appel-group").value || "Toutes les classes";
+  const activityKey = document.getElementById("appel-activity").value;
+  const activityName = (ACTIVITIES[activityKey] && ACTIVITIES[activityKey].name) ? ACTIVITIES[activityKey].name : activityKey;
+
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("Erreur de chargement du module PDF. Vérifiez votre connexion Internet.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4"
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 20;
+  let y = 20;
+
+  // En-tête
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.setTextColor(29, 78, 216);
+  doc.text("AS CLAUDIE HAIGNERÉ - ROUILLAC", margin, y);
+
+  y += 7;
+  doc.setFontSize(13);
+  doc.setTextColor(30, 41, 59);
+  doc.text("Feuille d'appel - Liste des présents", margin, y);
+
+  y += 5;
+  doc.setDrawColor(203, 213, 225);
+  doc.setLineWidth(0.5);
+  doc.line(margin, y, pageWidth - margin, y);
+
+  y += 9;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(71, 85, 105);
+  doc.text("Date : " + dateStr + "   |   Activité : " + activityName + "   |   Groupe : " + groupVal, margin, y);
+
+  y += 6;
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(22, 163, 74);
+  doc.text("Nombre de présents : " + presentStudents.length, margin, y);
+
+  y += 8;
+  doc.setDrawColor(226, 232, 240);
+  doc.setFillColor(241, 245, 249);
+  doc.rect(margin, y, pageWidth - 2 * margin, 8, "FD");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(51, 65, 85);
+  doc.text("N°", margin + 4, y + 5.5);
+  doc.text("NOM", margin + 18, y + 5.5);
+  doc.text("PRÉNOM", margin + 75, y + 5.5);
+  doc.text("CLASSE", margin + 130, y + 5.5);
+
+  y += 8;
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(15, 23, 42);
+
+  presentStudents.forEach((st, idx) => {
+    if (y > 270) {
+      doc.addPage();
+      y = 20;
+      doc.setFillColor(241, 245, 249);
+      doc.rect(margin, y, pageWidth - 2 * margin, 8, "FD");
+      doc.setFont("helvetica", "bold");
+      doc.text("N°", margin + 4, y + 5.5);
+      doc.text("NOM", margin + 18, y + 5.5);
+      doc.text("PRÉNOM", margin + 75, y + 5.5);
+      doc.text("CLASSE", margin + 130, y + 5.5);
+      y += 8;
+      doc.setFont("helvetica", "normal");
+    }
+
+    if (idx % 2 === 1) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(margin, y, pageWidth - 2 * margin, 7, "F");
+    }
+
+    doc.text(String(idx + 1), margin + 4, y + 5);
+    doc.text(String(st.lastname || "").toUpperCase(), margin + 18, y + 5);
+    doc.text(String(st.firstname || ""), margin + 75, y + 5);
+    doc.text(String(st.class || "-"), margin + 130, y + 5);
+
+    doc.setDrawColor(241, 245, 249);
+    doc.line(margin, y + 7, pageWidth - margin, y + 7);
+
+    y += 7;
+  });
+
+  const cleanDate = dateVal || "appel";
+  doc.save("presents_AS_" + cleanDate + ".pdf");
+  showToast("Export PDF des présents réussi 📄");
 }
 
 

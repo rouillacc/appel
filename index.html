@@ -32,7 +32,7 @@ input, select { font-family: inherit; width: 100%; border-radius: 11px; border: 
 .header-title h1 { font-size: 19px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .header-title p { font-size: 11px; opacity: .9; font-weight: bold; }
 .header-actions { display: flex; align-items: center; gap: 6px; }
-.cloud-badge { font-size: 11px; font-weight: bold; padding: 5px 9px; border-radius: 8px; background: rgba(255,255,255,.2); color: white; border: 1px solid rgba(255,255,255,.3); }
+.cloud-badge { font-size: 11px; font-weight: bold; padding: 5px 9px; border-radius: 8px; background: rgba(255,255,255,.2); color: white; border: 1px solid rgba(255,255,255,.3); cursor: pointer; }
 .cloud-badge.online { background: rgba(34,197,94,.4); border-color: rgba(34,197,94,.7); }
 .cloud-badge.syncing { background: rgba(234,179,8,.4); }
 .cloud-badge.error { background: rgba(239,68,68,.4); }
@@ -109,7 +109,7 @@ main { max-width: 1100px; margin: auto; padding: 18px 14px; }
       </div>
     </div>
     <div class="header-actions">
-      <span id="cloud-badge" class="cloud-badge" onclick="forceSyncFromCloud()">☁️ Connexion...</span>
+      <span id="cloud-badge" class="cloud-badge" onclick="showCloudDiagnostic()">☁️ Connexion...</span>
       <button class="header-btn" type="button" onclick="openSchoolsModal()">🏫 Établissement</button>
     </div>
   </div>
@@ -233,14 +233,14 @@ main { max-width: 1100px; margin: auto; padding: 18px 14px; }
   <div class="card">
     <h3>📅 Planning hebdomadaire des créneaux</h3>
     <div id="schedule-settings-list" style="display:flex;flex-direction:column;gap:8px;"></div>
-    <button class="save-button" style="width:100%;margin-top:12px;" type="button" onclick="saveCurrentSchoolSettings()">💾 ENREGISTRER & SYNCHRONISER CLOUD</button>
+    <button class="save-button" style="width:100%;margin-top:12px;" type="button" onclick="saveCurrentSchoolSettings()">💾 ENREGISTRER LES RÉGLAGES</button>
   </div>
 
   <div class="card">
     <h3>☁️ Synchronisation Firebase Cloud</h3>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="sec-btn" style="flex:1;min-height:48px;" type="button" onclick="forceSyncFromCloud()">🔄 Télécharger les données du Cloud</button>
-      <button class="sec-btn" style="flex:1;min-height:48px;" type="button" onclick="forceUpload()">⬆️ Envoyer les données vers le Cloud</button>
+      <button class="sec-btn" style="flex:1;min-height:48px;" type="button" onclick="forceSyncFromCloud()">🔄 Télécharger depuis le Cloud</button>
+      <button class="sec-btn" style="flex:1;min-height:48px;" type="button" onclick="forceUpload()">⬆️ Envoyer vers le Cloud</button>
     </div>
   </div>
 </section>
@@ -295,7 +295,7 @@ main { max-width: 1100px; margin: auto; padding: 18px 14px; }
 
 <script>
 /* =========================================================
-   FIREBASE FIRESTORE
+   FIREBASE FIRESTORE SYNC
 ========================================================= */
 const firebaseConfig = {
   apiKey: "AIzaSyCmV2E6dhnXPDNjjMkVQHI8IH2nXKQByvc",
@@ -373,7 +373,7 @@ function initApp() {
   if (!schoolsDB[currentSchoolId]) currentSchoolId = Object.keys(schoolsDB)[0];
   loadSchool(currentSchoolId);
 
-  // Écoute automatique en direct de Firebase Firestore
+  // Écoute automatique en direct de Firestore
   listenCloud();
 }
 
@@ -407,18 +407,25 @@ function saveLocal() {
   } catch(e){}
 }
 
-/* ENVOI CLOUD FIRESTORE */
+/* ENVOI CLOUD FIRESTORE AVEC NETTOYAGE STRICT */
 function pushToCloud(school) {
-  if (!db || !school || !school.id) return;
+  if (!db || !school) return;
+  const targetId = school.id || currentSchoolId || "rouillac";
+
+  // Nettoyage JSON pour éviter tout rejet de Firestore
+  const cleanSchool = JSON.parse(JSON.stringify(school));
+  cleanSchool.id = targetId;
+
   updateCloudBadge("syncing", "⏳ Envoi Cloud...");
-  db.collection(FIRESTORE_COLLECTION).doc(school.id).set(school)
+  db.collection(FIRESTORE_COLLECTION).doc(targetId).set(cleanSchool)
     .then(() => {
-      updateCloudBadge("online", "☁️ Synchronisé");
+      updateCloudBadge("online", `☁️ Synchronisé (${(cleanSchool.roster || []).length} élv.)`);
+      showToast(`Synchronisé sur Firebase (${(cleanSchool.roster || []).length} élèves) ✅`);
     })
     .catch(err => {
       console.error("Erreur Firestore:", err);
       updateCloudBadge("error", "⚠️ Erreur Cloud");
-      alert("Erreur Firestore : " + err.message);
+      alert("Erreur Firestore : " + err.message + "\nAssurez-vous que les Règles sont bien 'allow read, write: if true;'");
     });
 }
 
@@ -426,23 +433,30 @@ function forceUpload() {
   saveLocal();
   if (currentSchool) {
     pushToCloud(currentSchool);
-    showToast("Envoi vers le Cloud effectué ☁️");
   }
 }
 
-/* TÉLÉCHARGEMENT & ÉCOUTE FIRESTORE SUR LES 10 APPAREILS */
+/* SYNCHRO EN TEMPS RÉEL SUR LES 10 APPAREILS */
 function listenCloud() {
   if (!db) { updateCloudBadge("offline", "🟠 Hors-ligne"); return; }
   try {
     db.collection(FIRESTORE_COLLECTION).onSnapshot(snapshot => {
       let updated = false;
+      let cloudCount = 0;
+
       snapshot.forEach(docSnap => {
+        const docId = docSnap.id;
         const data = docSnap.data();
-        if (data && data.id && data.id !== "init") {
-          schoolsDB[data.id] = data;
+        if (data && docId !== "init") {
+          data.id = data.id || docId;
+          schoolsDB[docId] = data;
+          if (docId === currentSchoolId) {
+            cloudCount = (data.roster || []).length;
+          }
           updated = true;
         }
       });
+
       if (updated) {
         saveLocal();
         if (schoolsDB[currentSchoolId]) {
@@ -455,7 +469,7 @@ function listenCloud() {
           }
         }
       }
-      updateCloudBadge("online", "☁️ Synchronisé");
+      updateCloudBadge("online", `☁️ Synchronisé (${cloudCount || roster.length} élv.)`);
     }, err => {
       console.warn("Écoute cloud:", err);
       updateCloudBadge("offline", "🟠 Hors-ligne");
@@ -468,32 +482,49 @@ function listenCloud() {
 function forceSyncFromCloud() {
   if (!db) { showToast("Firebase non disponible"); return; }
   updateCloudBadge("syncing", "⏳ Chargement...");
+
   db.collection(FIRESTORE_COLLECTION).get().then(snapshot => {
-    let count = 0;
+    let found = false;
+    let total = 0;
+
     snapshot.forEach(docSnap => {
+      const docId = docSnap.id;
       const data = docSnap.data();
-      if (data && data.id && data.id !== "init") {
-        schoolsDB[data.id] = data;
-        count++;
+      if (data && docId !== "init") {
+        data.id = data.id || docId;
+        schoolsDB[docId] = data;
+        if (docId === currentSchoolId) {
+          total = (data.roster || []).length;
+          found = true;
+        }
       }
     });
-    if (count > 0) {
+
+    if (found || Object.keys(schoolsDB).length > 0) {
       saveLocal();
       loadSchool(currentSchoolId);
       renderHome();
       renderAppel();
       renderBilan();
       renderRoster();
-      updateCloudBadge("online", "☁️ Synchronisé");
-      showToast(`${roster.length} élèves synchronisés depuis le Cloud ! ✅`);
+      updateCloudBadge("online", `☁️ Synchronisé (${roster.length} élv.)`);
+      alert(`Synchronisation réussie ! ${roster.length} élève(s) chargé(s) depuis le Cloud.`);
     } else {
-      updateCloudBadge("online", "☁️ Synchronisé");
-      showToast("Aucune donnée sur le Cloud.");
+      updateCloudBadge("online", "☁️ Cloud vide (0 élève)");
+      alert("La base Firestore est actuellement vide. Envoyez d'abord les élèves depuis votre téléphone avec le bouton 'Envoyer vers le Cloud'.");
     }
   }).catch(err => {
-    alert("Erreur : " + err.message);
+    alert("Erreur de connexion Firebase : " + err.message);
     updateCloudBadge("offline", "🟠 Hors-ligne");
   });
+}
+
+function showCloudDiagnostic() {
+  const count = roster.length;
+  const msg = `État Firebase :\n• Appareil : ${count} élève(s)\n• AS active : ${currentSchool.name || "AS"}\n\nCliquez sur OK pour forcer la récupération depuis le Cloud.`;
+  if (confirm(msg)) {
+    forceSyncFromCloud();
+  }
 }
 
 /* NAVIGATION */
@@ -663,11 +694,10 @@ function clearCurrentSession() {
 function saveSession() {
   saveLocal();
   pushToCloud(currentSchool);
-  showToast("Appel sauvegardé & synchronisé Cloud 💾");
   renderHome();
 }
 
-/* EXPORT PDF */
+/* EXPORT PDF (STRICTEMENT NOM & PRÉNOM) */
 function exportPresentPDF() {
   const curDate = document.getElementById("appel-date").value;
   const curAct = document.getElementById("appel-activity").value;
@@ -795,7 +825,7 @@ function saveCurrentSchoolSettings() {
   renderHome();
 }
 
-/* ÉLÈVES & IMPORT CSV SANS DOUBLONS */
+/* ÉLÈVES & IMPORT CSV ANTI-DOUBLONS */
 function openRosterModal() {
   renderRoster();
   document.getElementById("roster-modal").classList.add("show");
@@ -820,10 +850,9 @@ function addStudent() {
   const classe = document.getElementById("new-class").value.trim();
   if (!nom || !prenom) return;
 
-  // Anti-doublon ajout manuel
   const exists = roster.some(s => s.lastname.toLowerCase() === nom.toLowerCase() && s.firstname.toLowerCase() === prenom.toLowerCase());
   if (exists) {
-    alert("Cet élève est déjà dans la liste.");
+    alert("Cet élève est déjà présent dans la liste.");
     return;
   }
 
@@ -857,7 +886,6 @@ function importCSV(e) {
 
     lines.forEach((l, idx) => {
       let parts = l.split(";").map(p => p.replace(/^"|"$/g, "").trim());
-      // Élimination du numéro de licence
       if (/^[0-9]{4,}$/.test(parts[0])) parts.shift();
       if (idx === 0 && (parts[0].toLowerCase().includes("nom") || parts[0].toLowerCase().includes("licence"))) return;
 
@@ -866,7 +894,6 @@ function importCSV(e) {
       const classe = parts[2] ? parts[2].trim() : "";
 
       if (nom && prenom) {
-        // VÉRIFICATION ANTI-DOUBLONS STRICTE
         const alreadyExists = roster.some(s =>
           s.lastname.trim().toLowerCase() === nom.toLowerCase() &&
           s.firstname.trim().toLowerCase() === prenom.toLowerCase()
@@ -912,7 +939,7 @@ function openSchoolsModal() {
 
 function switchSchool(id) {
   const s = schoolsDB[id];
-  if (s.accessCode) {
+  if (s && s.accessCode) {
     const code = prompt(`Code secret requis pour ${s.name} :`);
     if (code !== s.accessCode) { alert("Code incorrect"); return; }
   }

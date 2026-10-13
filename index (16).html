@@ -1,0 +1,2874 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title id="html-title">AS Gestion - Appel & Présences</title>
+
+<!-- PWA & Mobile Web App Meta Tags -->
+<meta name="application-name" content="AS Appel">
+<meta name="apple-mobile-web-app-title" content="AS Appel">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1d4ed8">
+
+<!-- Icône SVG embarquée (Trophée) pour écran d'accueil et onglet -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231d4ed8'/><text x='50%' y='68%' font-size='60' text-anchor='middle'>🏆</text></svg>">
+
+<!-- Manifest JSON embarqué en Data URI pour installation directe -->
+<link rel="manifest" href='data:application/manifest+json,{"name":"AS Gestion Présences","short_name":"AS Appel","start_url":".","display":"standalone","background_color":"%23f4f7fb","theme_color":"%231d4ed8","icons":[{"src":"data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><rect width=%27100%27 height=%27100%27 rx=%2720%27 fill=%27%231d4ed8%27/><text x=%2750%25%27 y=%2768%25%27 font-size=%2760%27 text-anchor=%27middle%27>🏆</text></svg>","sizes":"192x192 512x512","type":"image/svg+xml"}]}'>
+
+<!-- Bibliothèque jsPDF pour l'exportation PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- Firebase SDK (Compatibilité directe sans compilateur) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<style>
+/* =========================================================
+   VARIABLES
+========================================================= */
+:root {
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --text: #172033;
+  --muted: #718096;
+
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+
+  --green: #16a34a;
+  --green-light: #dcfce7;
+
+  --orange: #f97316;
+  --orange-light: #ffedd5;
+
+  --purple: #8b5cf6;
+  --purple-light: #ede9fe;
+
+  --pink: #ec4899;
+  --pink-light: #fce7f3;
+
+  --red: #ef4444;
+  --red-light: #fee2e2;
+
+  --yellow: #eab308;
+  --yellow-light: #fef9c3;
+
+  --border: #e5e7eb;
+
+  --shadow: 0 8px 25px rgba(15, 23, 42, .08);
+  --radius: 18px;
+}
+
+/* =========================================================
+   BASE
+========================================================= */
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  padding-bottom: 30px;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.app-header {
+  background: linear-gradient(135deg, #1d4ed8, #7c3aed, #ec4899);
+  color: white;
+  padding: 16px 16px 18px;
+  box-shadow: 0 5px 20px rgba(37, 99, 235, .25);
+  position: relative;
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.logo {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  flex-shrink: 0;
+}
+
+.header-title {
+  min-width: 0;
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-title p {
+  margin: 3px 0 0;
+  font-size: 11.5px;
+  opacity: .95;
+  font-weight: bold;
+  letter-spacing: .5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.cloud-badge {
+  font-size: 11px;
+  font-weight: bold;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.3);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.cloud-badge.online {
+  background: rgba(34,197,94,.25);
+  border-color: rgba(34,197,94,.5);
+}
+
+.cloud-badge.offline {
+  background: rgba(249,115,22,.25);
+  border-color: rgba(249,115,22,.5);
+}
+
+.switch-school-btn {
+  background: rgba(255,255,255,.2);
+  border: 1px solid rgba(255,255,255,.4);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: bold;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: .15s;
+}
+
+.switch-school-btn:active {
+  transform: scale(.95);
+  background: rgba(255,255,255,.3);
+}
+
+/* =========================================================
+   NAVIGATION (5 ONGLETS)
+========================================================= */
+
+.main-nav-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+  background: white;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 15px rgba(0,0,0,.08);
+}
+
+.main-nav {
+  max-width: 1100px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  padding: 7px;
+}
+
+.main-nav-button {
+  min-height: 60px;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #475569;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  transition: .15s;
+  touch-action: manipulation;
+  padding: 4px 2px;
+}
+
+.main-nav-button span {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.main-nav-button strong {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.main-nav-button.active {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+  box-shadow: 0 5px 12px rgba(37,99,235,.25);
+}
+
+.main-nav-button:active {
+  transform: scale(.96);
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 18px 14px 40px;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+.page-title {
+  margin: 5px 0 16px;
+}
+
+.page-title h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.page-title p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  padding: 17px;
+  margin-bottom: 15px;
+}
+
+.card h3 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 17px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.stat-icon {
+  font-size: 28px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 26px;
+  font-weight: 900;
+  margin-top: 5px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* =========================================================
+   QUICK ACTIONS
+========================================================= */
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.quick-action {
+  min-height: 105px;
+  border-radius: 18px;
+  color: white;
+  padding: 15px;
+  text-align: left;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  transition: .15s;
+  touch-action: manipulation;
+}
+
+.quick-action:active {
+  transform: scale(.97);
+}
+
+.quick-action .icon {
+  font-size: 30px;
+}
+
+.quick-action strong {
+  font-size: 17px;
+}
+
+.quick-action small {
+  opacity: .9;
+}
+
+.quick-blue {
+  background: linear-gradient(135deg,#2563eb,#3b82f6);
+}
+
+.quick-purple {
+  background: linear-gradient(135deg,#7c3aed,#a855f7);
+}
+
+.quick-orange {
+  background: linear-gradient(135deg,#ea580c,#f97316);
+}
+
+/* =========================================================
+   ACTIVITIES
+========================================================= */
+
+.activities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.activity-card {
+  padding: 15px 10px;
+  border-radius: 16px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.activity-icon {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.activity-count {
+  display: block;
+  font-size: 22px;
+  margin-top: 5px;
+}
+
+/* =========================================================
+   APPEL
+========================================================= */
+
+.toolbar {
+  background: white;
+  border-radius: 18px;
+  padding: 15px;
+  box-shadow: var(--shadow);
+  margin-bottom: 15px;
+}
+
+.toolbar-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.field label {
+  display: block;
+  font-weight: bold;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 8px 10px;
+  background: #f8fafc;
+  font-size: 16px;
+  outline: none;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--primary);
+  background: white;
+}
+
+.save-buttons-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.save-button {
+  width: 100%;
+  min-height: 60px;
+  border-radius: 14px;
+  background: linear-gradient(135deg,#16a34a,#22c55e);
+  color: white;
+  font-size: 16px;
+  font-weight: 900;
+  box-shadow: 0 5px 15px rgba(22,163,74,.25);
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.save-button:active {
+  transform: scale(.98);
+}
+
+.pdf-button {
+  width: 100%;
+  min-height: 60px;
+  border-radius: 14px;
+  background: linear-gradient(135deg,#dc2626,#ef4444);
+  color: white;
+  font-size: 16px;
+  font-weight: 900;
+  box-shadow: 0 5px 15px rgba(220,38,38,.25);
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.pdf-button:active {
+  transform: scale(.98);
+}
+
+.appel-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #eff6ff;
+  border-radius: 13px;
+  padding: 12px 15px;
+  margin-bottom: 12px;
+}
+
+.presence-counter {
+  font-size: 21px;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.students-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.student-row {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  min-height: 67px;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-avatar {
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#2563eb,#7c3aed);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.student-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.student-name {
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.student-class {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.presence-button {
+  width: 58px;
+  height: 52px;
+  border-radius: 13px;
+  background: #e5e7eb;
+  color: #64748b;
+  font-size: 20px;
+  font-weight: 900;
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+
+.presence-button.present {
+  background: #22c55e;
+  color: white;
+  box-shadow: 0 4px 10px rgba(34,197,94,.3);
+}
+
+.presence-button:active {
+  transform: scale(.93);
+}
+
+/* =========================================================
+   APPEL ACTIONS
+========================================================= */
+
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.secondary-button {
+  min-height: 48px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  color: #334155;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.secondary-button.danger {
+  background: var(--red-light);
+  color: #b91c1c;
+}
+
+/* =========================================================
+   BILAN
+========================================================= */
+
+.bilan-student {
+  background: white;
+  border-radius: 17px;
+  border: 1px solid var(--border);
+  padding: 15px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+
+.bilan-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bilan-name {
+  flex: 1;
+}
+
+.bilan-name strong {
+  display: block;
+  font-size: 17px;
+}
+
+.bilan-name small {
+  color: var(--muted);
+}
+
+.total-presence {
+  background: var(--green-light);
+  color: #15803d;
+  border-radius: 12px;
+  padding: 8px 12px;
+  text-align: center;
+  font-weight: 900;
+}
+
+/* =========================================================
+   PAGE RÉGLAGES
+========================================================= */
+
+.settings-section {
+  margin-bottom: 24px;
+}
+
+.settings-section h3 {
+  margin-top: 0;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+.schedule-row {
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.schedule-row td {
+  padding: 10px;
+  vertical-align: middle;
+}
+
+.schedule-row td:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  width: 50px;
+  text-align: center;
+}
+
+.schedule-row td:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.day-badge {
+  font-weight: 900;
+  font-size: 14px;
+  text-transform: capitalize;
+  display: inline-block;
+  min-width: 90px;
+}
+
+.slot-input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  background: white;
+}
+
+.slot-icon-select {
+  width: 55px;
+  min-height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-align: center;
+  font-size: 18px;
+  background: white;
+}
+
+.switch-checkbox {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.save-settings-btn {
+  width: 100%;
+  min-height: 52px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  font-size: 16px;
+  font-weight: 900;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, .25);
+  margin-top: 15px;
+}
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15,23,42,.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal {
+  width: 100%;
+  max-width: 650px;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 22px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  padding: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.close-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.add-student-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 100px auto;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+
+.add-student-form input {
+  min-height: 45px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  font-size: 15px;
+}
+
+.add-student-form button {
+  border-radius: 10px;
+  background: #16a34a;
+  color: white;
+  font-weight: 900;
+  padding: 0 14px;
+}
+
+.roster-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.roster-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.roster-row-info {
+  flex: 1;
+}
+
+.delete-student {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 18px;
+}
+
+.import-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 15px;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.import-zone label {
+  display: inline-block;
+  padding: 11px 15px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.import-zone input {
+  display: none;
+}
+
+.export-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.export-buttons button {
+  min-height: 45px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+/* Modal Établissements */
+.schools-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.school-card-item {
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: .15s;
+}
+
+.school-card-item:hover {
+  border-color: var(--primary);
+  background: #eff6ff;
+}
+
+.school-card-item.active {
+  border-color: var(--primary);
+  background: #eff6ff;
+  box-shadow: 0 4px 12px rgba(37,99,235,.15);
+}
+
+.school-item-info strong {
+  display: block;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.school-item-info small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.school-badge {
+  font-size: 11px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--green-light);
+  color: var(--green);
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 25px;
+  transform: translateX(-50%) translateY(100px);
+  z-index: 11000;
+  background: #172033;
+  color: white;
+  padding: 13px 18px;
+  border-radius: 13px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.25);
+  font-weight: bold;
+  transition: .25s;
+  max-width: 90%;
+  text-align: center;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.empty {
+  text-align: center;
+  padding: 35px 15px;
+  color: var(--muted);
+}
+
+.empty-icon {
+  font-size: 50px;
+  margin-bottom: 10px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 750px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .toolbar-grid {
+    grid-template-columns: 1fr;
+  }
+  .save-buttons-row {
+    grid-template-columns: 1fr;
+  }
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+  .add-student-form {
+    grid-template-columns: 1fr 1fr;
+  }
+  .add-student-form button {
+    min-height: 45px;
+  }
+  .header-inner {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    padding: 12px 10px;
+  }
+  .logo {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+  }
+  .header-title h1 {
+    font-size: 16px;
+  }
+  .header-title p {
+    font-size: 10px;
+  }
+  .cloud-badge {
+    padding: 4px 7px;
+    font-size: 10px;
+  }
+  .switch-school-btn {
+    padding: 6px 9px;
+    font-size: 11px;
+  }
+  .main-nav-button {
+    min-height: 54px;
+    padding: 3px 1px;
+  }
+  .main-nav-button span {
+    font-size: 18px;
+  }
+  .main-nav-button strong {
+    font-size: 9.5px;
+  }
+  .student-name {
+    font-size: 14px;
+  }
+  .presence-button {
+    width: 50px;
+    height: 46px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="logo">🏆</div>
+      <div class="header-title">
+        <h1 id="app-school-name">AS CLAUDIE HAIGNERÉ</h1>
+        <p id="app-school-sub">ROUILLAC • BOUGE • PARTICIPE • PROGRESSE</p>
+      </div>
+    </div>
+
+    <!-- ACTIONS : INDICATEUR CLOUD + BOUTON ÉTABLISSEMENT -->
+    <div class="header-actions">
+      <span id="cloud-badge" class="cloud-badge" title="État de synchronisation Firebase Cloud">
+        ☁️ Connexion...
+      </span>
+
+      <button
+        class="switch-school-btn"
+        type="button"
+        onclick="openSchoolsModal()"
+        title="Changer d'établissement scolaire">
+        🏫 <span>Établissement</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+<!-- =====================================================
+     NAVIGATION PRINCIPALE (5 ONGLETS)
+===================================================== -->
+
+<div class="main-nav-wrapper">
+  <nav class="main-nav">
+    <button
+      id="nav-home"
+      class="main-nav-button active"
+      type="button"
+      onclick="showPage('home')">
+      <span>🏠</span>
+      <strong>Accueil</strong>
+    </button>
+
+    <button
+      id="nav-appel"
+      class="main-nav-button"
+      type="button"
+      onclick="showPage('appel')">
+      <span>📋</span>
+      <strong>Appel</strong>
+    </button>
+
+    <button
+      id="nav-bilan"
+      class="main-nav-button"
+      type="button"
+      onclick="showPage('bilan')">
+      <span>📊</span>
+      <strong>Bilan</strong>
+    </button>
+
+    <button
+      class="main-nav-button"
+      type="button"
+      onclick="openRosterModal()">
+      <span>👥</span>
+      <strong>Élèves</strong>
+    </button>
+
+    <button
+      id="nav-settings"
+      class="main-nav-button"
+      type="button"
+      onclick="showPage('settings')">
+      <span>⚙️</span>
+      <strong>Réglages</strong>
+    </button>
+  </nav>
+</div>
+
+
+<!-- =====================================================
+     CONTENU
+===================================================== -->
+
+<main>
+
+<!-- =====================================================
+     PAGE ACCUEIL
+===================================================== -->
+
+<section id="page-home" class="page active">
+  <div class="page-title">
+    <h2>👋 Bienvenue !</h2>
+    <p>Gestion de l'Association Sportive</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <span id="stat-students" class="stat-number">0</span>
+      <span class="stat-label">Élèves</span>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📅</div>
+      <span id="stat-sessions" class="stat-number">0</span>
+      <span class="stat-label">Séances</span>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <span id="stat-presences" class="stat-number">0</span>
+      <span class="stat-label">Présences</span>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📈</div>
+      <span id="stat-rate" class="stat-number">0%</span>
+      <span class="stat-label">Assiduité</span>
+    </div>
+  </div>
+
+  <div class="quick-actions">
+    <button
+      class="quick-action quick-blue"
+      type="button"
+      onclick="showPage('appel')">
+      <span class="icon">📋</span>
+      <strong>Faire l'appel</strong>
+      <small>Pointer les présents</small>
+    </button>
+
+    <button
+      class="quick-action quick-purple"
+      type="button"
+      onclick="showPage('bilan')">
+      <span class="icon">📊</span>
+      <strong>Voir le bilan</strong>
+      <small>Suivre les présences</small>
+    </button>
+
+    <button
+      class="quick-action quick-orange"
+      type="button"
+      onclick="openRosterModal()">
+      <span class="icon">👥</span>
+      <strong>Gérer les élèves</strong>
+      <small>Ajouter / modifier</small>
+    </button>
+  </div>
+
+  <div class="card">
+    <h3>🏅 Élèves les plus assidus</h3>
+    <div id="top-students"></div>
+  </div>
+
+  <div class="card">
+    <h3>🏃 Activités programmées</h3>
+    <div id="activity-cards" class="activities-grid"></div>
+  </div>
+</section>
+
+
+<!-- =====================================================
+     PAGE APPEL
+===================================================== -->
+
+<section id="page-appel" class="page">
+  <div class="page-title">
+    <h2>📋 Appel</h2>
+    <p>Marque les élèves présents à la séance.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-grid">
+      <div class="field">
+        <label for="appel-date">📅 Date</label>
+        <input
+          id="appel-date"
+          type="date"
+          onchange="updateActivityFromDate()">
+      </div>
+
+      <div class="field">
+        <label for="appel-group">👥 Groupe / Classe</label>
+        <select
+          id="appel-group"
+          onchange="renderAppel()">
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="appel-activity">🏃 Activité</label>
+        <select
+          id="appel-activity">
+        </select>
+      </div>
+    </div>
+
+    <div class="save-buttons-row">
+      <button
+        class="save-button"
+        type="button"
+        onclick="saveSession()">
+        💾 SAUVEGARDER L'APPEL
+      </button>
+
+      <button
+        class="pdf-button"
+        type="button"
+        onclick="exportPresentPDF()">
+        📄 EXPORTER PDF PRÉSENTS
+      </button>
+    </div>
+  </div>
+
+  <div class="action-row">
+    <button
+      class="secondary-button"
+      type="button"
+      onclick="setAllPresent()">
+      ✅ Tous présents
+    </button>
+
+    <button
+      class="secondary-button danger"
+      type="button"
+      onclick="clearCurrentSession()">
+      ❌ Tout effacer
+    </button>
+  </div>
+
+  <div class="appel-info">
+    <div><strong>Présents</strong></div>
+    <div id="presence-counter" class="presence-counter">0 / 0</div>
+  </div>
+
+  <div id="students-list" class="students-list"></div>
+</section>
+
+
+<!-- =====================================================
+     PAGE BILAN
+===================================================== -->
+
+<section id="page-bilan" class="page">
+  <div class="page-title">
+    <h2>📊 Bilan des présences</h2>
+    <p>Suivi individuel des élèves de l'AS.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-grid">
+      <div class="field">
+        <label for="bilan-group">👥 Filtrer par classe</label>
+        <select
+          id="bilan-group"
+          onchange="renderBilan()">
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="bilan-search">🔎 Rechercher</label>
+        <input
+          id="bilan-search"
+          type="search"
+          placeholder="Nom ou prénom..."
+          oninput="renderBilan()">
+      </div>
+    </div>
+  </div>
+
+  <div id="bilan-list"></div>
+</section>
+
+
+<!-- =====================================================
+     PAGE RÉGLAGES
+===================================================== -->
+
+<section id="page-settings" class="page">
+  <div class="page-title">
+    <h2>⚙️ Réglages de l'établissement</h2>
+    <p>Personnalise l'identification et le planning des créneaux hebdomadaires.</p>
+  </div>
+
+  <!-- Identification de l'établissement -->
+  <div class="card settings-section">
+    <h3>🏫 Identification de l'établissement</h3>
+    <p class="settings-desc">Ces informations apparaîtront dans l'en-tête de l'application et sur les exports PDF.</p>
+
+    <div class="field" style="margin-bottom:12px;">
+      <label for="setting-school-name">Nom de l'Association Sportive / Établissement</label>
+      <input id="setting-school-name" type="text" placeholder="Ex: AS Claudie Haigneré">
+    </div>
+
+    <div class="field" style="margin-bottom:12px;">
+      <label for="setting-school-city">Ville / Localisation</label>
+      <input id="setting-school-city" type="text" placeholder="Ex: Rouillac">
+    </div>
+
+    <div class="field">
+      <label for="setting-school-slogan">Slogan ou devise d'en-tête</label>
+      <input id="setting-school-slogan" type="text" placeholder="Ex: BOUGE • PARTICIPE • PROGRESSE">
+    </div>
+  </div>
+
+  <!-- Créneaux et Activités de la semaine -->
+  <div class="card settings-section">
+    <h3>📅 Créneaux et Activités hebdomadaires</h3>
+    <p class="settings-desc">Cochez les jours actifs et saisissez librement l'activité enseignée pour chaque créneau.</p>
+
+    <table class="schedule-table">
+      <tbody id="schedule-settings-tbody">
+        <!-- Rempli dynamiquement en JS -->
+      </tbody>
+    </table>
+
+    <button
+      class="save-settings-btn"
+      type="button"
+      onclick="saveCurrentSchoolSettings()">
+      💾 ENREGISTRER LES RÉGLAGES
+    </button>
+  </div>
+
+  <!-- Gestion multi-établissements & Cloud -->
+  <div class="card settings-section">
+    <h3>🔄 Établissement actif & Cloud Firebase</h3>
+    <p class="settings-desc">Toutes les données sont synchronisées en direct sur Firebase Cloud Firestore. Vous pouvez utiliser l'application sur plusieurs appareils sans perte de données.</p>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button
+        class="secondary-button"
+        style="flex:1;min-height:50px;"
+        type="button"
+        onclick="openSchoolsModal()">
+        🏫 Changer d'établissement
+      </button>
+
+      <button
+        class="secondary-button"
+        style="min-height:50px;padding:0 15px;"
+        type="button"
+        onclick="forceCloudSync()">
+        ☁️ Forcer la synchronisation Cloud
+      </button>
+
+      <button
+        class="secondary-button danger"
+        style="min-height:50px;padding:0 15px;"
+        type="button"
+        onclick="deleteCurrentSchool()">
+        🗑️ Supprimer cet établissement
+      </button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+
+<!-- =====================================================
+     MODAL GESTION DES ÉLÈVES
+===================================================== -->
+
+<div
+  id="roster-modal"
+  class="modal-overlay"
+  onclick="outsideModal(event)">
+
+  <div class="modal">
+    <div class="modal-header">
+      <h2>👥 Gestion des élèves</h2>
+      <button
+        class="close-button"
+        type="button"
+        onclick="closeRosterModal()">
+        ×
+      </button>
+    </div>
+
+    <h3>➕ Ajouter un élève</h3>
+    <div class="add-student-form">
+      <input id="new-lastname" type="text" placeholder="Nom">
+      <input id="new-firstname" type="text" placeholder="Prénom">
+      <input id="new-class" type="text" placeholder="Classe">
+      <button type="button" onclick="addStudent()">Ajouter</button>
+    </div>
+
+    <h3>👤 Liste des élèves (<span id="roster-count">0</span>)</h3>
+    <div id="roster-list" class="roster-list"></div>
+
+    <div class="import-zone">
+      <strong>📥 Importer une liste CSV</strong>
+      <p style="font-size:12px;color:#718096;margin:4px 0 10px;">Format : Nom;Prénom;Classe (ou avec licence en 1ère colonne)</p>
+      <label for="csv-file">Choisir un fichier</label>
+      <input id="csv-file" type="file" accept=".csv,text/csv" onchange="importCSV(event)">
+    </div>
+
+    <div class="export-buttons">
+      <button type="button" style="background:#dbeafe;color:#1d4ed8;" onclick="exportStudentsCSV()">
+        📤 Export élèves
+      </button>
+      <button type="button" style="background:#dcfce7;color:#15803d;" onclick="exportSessionsCSV()">
+        📤 Export présences
+      </button>
+      <button type="button" style="background:#ede9fe;color:#6d28d9;grid-column:span 2;" onclick="exportBackup()">
+        💾 Sauvegarde complète (.json)
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- =====================================================
+     MODAL CHANGER D'ÉTABLISSEMENT
+===================================================== -->
+
+<div
+  id="schools-modal"
+  class="modal-overlay"
+  onclick="outsideSchoolsModal(event)">
+
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🏫 Changer d'établissement</h2>
+      <button
+        class="close-button"
+        type="button"
+        onclick="closeSchoolsModal()">
+        ×
+      </button>
+    </div>
+
+    <p style="font-size:13px;color:var(--muted);margin-top:0;margin-bottom:15px;">
+      Sélectionnez l'établissement à activer ou créez-en un nouveau. Chaque établissement conserve indépendamment sa propre liste d'élèves, ses présences et son planning, synchronisés sur Firestore.
+    </p>
+
+    <div id="schools-list-container" class="schools-list"></div>
+
+    <hr style="border:none;border-top:1px solid var(--border);margin:18px 0;">
+
+    <h3>➕ Créer un nouvel établissement</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <input id="new-school-name" class="slot-input" type="text" placeholder="Nom de l'AS (ex: AS Collège Jean Moulin)">
+      <input id="new-school-city" class="slot-input" type="text" placeholder="Ville (ex: Cognac)">
+      <button
+        class="save-button"
+        style="min-height:50px;font-size:15px;"
+        type="button"
+        onclick="createNewSchool()">
+        ✨ Créer et basculer sur cet établissement
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast" class="toast"></div>
+
+
+<script>
+/* =========================================================
+   CONFIGURATION FIREBASE CLOUD FIRESTORE
+========================================================= */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCmV2E6dhnXPDNjjMkVQHI8IH2nXKQByvc",
+  authDomain: "appel-as.firebaseapp.com",
+  projectId: "appel-as",
+  storageBucket: "appel-as.firebasestorage.app",
+  messagingSenderId: "943879688117",
+  appId: "1:943879688117:web:0b4b35465d40cac4ff13fc"
+};
+
+const FIRESTORE_COLLECTION = "appelas";
+let db = null;
+let isCloudOnline = false;
+
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+} catch (e) {
+  console.warn("Erreur d'initialisation Firebase:", e);
+}
+
+function updateCloudBadge(status) {
+  const badge = document.getElementById("cloud-badge");
+  if (!badge) return;
+
+  if (status === "synced") {
+    badge.className = "cloud-badge online";
+    badge.textContent = "☁️ Synchronisé";
+    isCloudOnline = true;
+  } else if (status === "syncing") {
+    badge.className = "cloud-badge";
+    badge.textContent = "⏳ Envoi...";
+  } else if (status === "offline") {
+    badge.className = "cloud-badge offline";
+    badge.textContent = "🟠 Hors-ligne";
+    isCloudOnline = false;
+  }
+}
+
+/* =========================================================
+   STRUCTURE & GESTION MULTI-ÉTABLISSEMENTS
+========================================================= */
+
+const ACTIVE_SCHOOL_KEY = "as_active_school_id_v1";
+const SCHOOLS_DB_KEY = "as_schools_database_v1";
+
+const DEFAULT_SCHEDULE = {
+  lundi: { enabled: true, name: "Futsal", icon: "⚽" },
+  mardi: { enabled: true, name: "Sports Collectifs", icon: "🏀" },
+  mercredi: { enabled: true, name: "Compétition", icon: "🏆" },
+  jeudi: { enabled: true, name: "Activités Artistiques", icon: "🤸" },
+  vendredi: { enabled: true, name: "Badminton", icon: "🏸" },
+  samedi: { enabled: false, name: "Plein Air", icon: "🌲" }
+};
+
+const DAY_LABELS = {
+  lundi: "Lundi",
+  mardi: "Mardi",
+  mercredi: "Mercredi",
+  jeudi: "Jeudi",
+  vendredi: "Vendredi",
+  samedi: "Samedi"
+};
+
+const EMOJI_OPTIONS = ["⚽", "🏀", "🏆", "🏸", "🤸", "🏐", "🤾", "🏓", "🏃", "🧗", "🏊", "🏹", "🌲", "🎯"];
+
+let schoolsDB = {};
+let currentSchoolId = "";
+
+/* Données de l'établissement actif */
+let currentSchool = null;
+let roster = [];
+let sessions = [];
+let ACTIVITIES = {};
+
+/* =========================================================
+   SYNCHRONISATION FIRESTORE
+========================================================= */
+
+function syncSchoolToFirestore(school) {
+  if (!db || !school || !school.id) return;
+  updateCloudBadge("syncing");
+
+  db.collection(FIRESTORE_COLLECTION).doc(school.id).set(school)
+    .then(() => {
+      updateCloudBadge("synced");
+    })
+    .catch(err => {
+      console.warn("Échec de synchronisation Firestore:", err);
+      updateCloudBadge("offline");
+    });
+}
+
+function deleteSchoolFromFirestore(schoolId) {
+  if (!db || !schoolId) return;
+  db.collection(FIRESTORE_COLLECTION).doc(schoolId).delete()
+    .catch(err => console.warn("Erreur suppression Firestore:", err));
+}
+
+function listenToFirestoreChanges() {
+  if (!db) {
+    updateCloudBadge("offline");
+    return;
+  }
+
+  db.collection(FIRESTORE_COLLECTION).onSnapshot(
+    snapshot => {
+      let receivedAny = false;
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data && data.id && data.id !== "init") {
+          schoolsDB[data.id] = data;
+          receivedAny = true;
+        }
+      });
+
+      if (receivedAny) {
+        saveSchoolsDB(false); // sauvegarde miroir locale sans boucle Firestore
+        if (schoolsDB[currentSchoolId]) {
+          loadActiveSchool(currentSchoolId, false);
+          renderHome();
+          renderAppel();
+          renderBilan();
+        }
+      }
+      updateCloudBadge("synced");
+    },
+    err => {
+      console.warn("Écoute Firestore interrompue:", err);
+      updateCloudBadge("offline");
+    }
+  );
+}
+
+function forceCloudSync() {
+  if (!db) {
+    showToast("Firebase non initialisé !");
+    return;
+  }
+  updateCloudBadge("syncing");
+  Object.values(schoolsDB).forEach(school => {
+    syncSchoolToFirestore(school);
+  });
+  showToast("Synchronisation Cloud lancée ☁️");
+}
+
+/* =========================================================
+   INITIALISATION DE LA BASE & MIGRATION
+========================================================= */
+
+function initSchoolsDatabase() {
+  schoolsDB = loadJSON(SCHOOLS_DB_KEY, null);
+
+  // Migration transparente des données existantes (Rouillac)
+  if (!schoolsDB || Object.keys(schoolsDB).length === 0) {
+    const legacyRoster = loadJSON("as_roster_v3", []);
+    const legacySessions = loadJSON("as_sessions_v3", []);
+
+    schoolsDB = {
+      "rouillac": {
+        id: "rouillac",
+        name: "AS CLAUDIE HAIGNERÉ",
+        city: "Rouillac",
+        slogan: "ROUILLAC • BOUGE • PARTICIPE • PROGRESSE",
+        schedule: JSON.parse(JSON.stringify(DEFAULT_SCHEDULE)),
+        roster: legacyRoster,
+        sessions: legacySessions
+      }
+    };
+    saveSchoolsDB(true);
+  }
+
+  currentSchoolId = localStorage.getItem(ACTIVE_SCHOOL_KEY);
+  if (!currentSchoolId || !schoolsDB[currentSchoolId]) {
+    currentSchoolId = Object.keys(schoolsDB)[0];
+    localStorage.setItem(ACTIVE_SCHOOL_KEY, currentSchoolId);
+  }
+
+  loadActiveSchool(currentSchoolId, false);
+
+  // Lancement de l'écoute en direct Firestore
+  listenToFirestoreChanges();
+}
+
+function loadActiveSchool(schoolId, shouldSync = false) {
+  if (!schoolsDB[schoolId]) return;
+
+  currentSchoolId = schoolId;
+  localStorage.setItem(ACTIVE_SCHOOL_KEY, schoolId);
+
+  currentSchool = schoolsDB[schoolId];
+  if (!currentSchool.schedule) {
+    currentSchool.schedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
+  }
+
+  roster = currentSchool.roster || [];
+  sessions = currentSchool.sessions || [];
+
+  buildActivitiesMap();
+  updateAppHeader();
+
+  if (shouldSync) {
+    syncSchoolToFirestore(currentSchool);
+  }
+}
+
+function buildActivitiesMap() {
+  ACTIVITIES = {};
+  const sched = currentSchool.schedule || {};
+  Object.keys(sched).forEach(dayKey => {
+    const item = sched[dayKey];
+    if (item && item.enabled && item.name && item.name.trim()) {
+      ACTIVITIES[dayKey] = {
+        name: item.name.trim(),
+        icon: item.icon || "🏃",
+        dayKey: dayKey
+      };
+    }
+  });
+}
+
+function updateAppHeader() {
+  const schoolName = currentSchool.name || "ASSOCIATION SPORTIVE";
+  const city = currentSchool.city || "";
+  const slogan = currentSchool.slogan || "BOUGE • PARTICIPE • PROGRESSE";
+
+  document.getElementById("app-school-name").textContent = schoolName.toUpperCase();
+  document.getElementById("app-school-sub").textContent = city ? `${city.toUpperCase()} • ${slogan}` : slogan;
+  document.getElementById("html-title").textContent = `${schoolName} - Appel & Présences`;
+}
+
+function saveSchoolsDB(syncToCloud = true) {
+  localStorage.setItem(SCHOOLS_DB_KEY, JSON.stringify(schoolsDB));
+  if (syncToCloud && currentSchool) {
+    syncSchoolToFirestore(currentSchool);
+  }
+}
+
+function saveCurrentSchoolData() {
+  if (!currentSchool) return;
+  currentSchool.roster = roster;
+  currentSchool.sessions = sessions;
+  schoolsDB[currentSchoolId] = currentSchool;
+
+  saveSchoolsDB(true);
+
+  if (currentSchoolId === "rouillac") {
+    localStorage.setItem("as_roster_v3", JSON.stringify(roster));
+    localStorage.setItem("as_sessions_v3", JSON.stringify(sessions));
+  }
+}
+
+/* =========================================================
+   OUTILS
+========================================================= */
+
+function loadJSON(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch (error) {
+    console.error(error);
+    return fallback;
+  }
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+}
+
+function escapeHTML(value) {
+  if (value === undefined || value === null) return "";
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function initials(student) {
+  const first = student.firstname ? student.firstname.charAt(0) : "";
+  const last = student.lastname ? student.lastname.charAt(0) : "";
+  return (first + last).toUpperCase();
+}
+
+function displayName(student) {
+  return (String(student.lastname || "").toUpperCase() + " " + String(student.firstname || "")).trim();
+}
+
+function todayISO() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatDate(dateString) {
+  if (!dateString) return "";
+  const parts = dateString.split("-");
+  return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateString;
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2200);
+}
+
+/* =========================================================
+   NAVIGATION (5 PAGES)
+========================================================= */
+
+function showPage(page) {
+  const pages = ["home", "appel", "bilan", "settings"];
+
+  pages.forEach(name => {
+    const element = document.getElementById("page-" + name);
+    if (element) {
+      element.classList.toggle("active", name === page);
+    }
+  });
+
+  document.querySelectorAll(".main-nav-button").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  const navButton = document.getElementById("nav-" + page);
+  if (navButton) navButton.classList.add("active");
+
+  if (page === "home") renderHome();
+  if (page === "appel") renderAppel();
+  if (page === "bilan") renderBilan();
+  if (page === "settings") renderSettingsPage();
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* =========================================================
+   ACTIVITÉ SELON LE JOUR DU PLANNING
+========================================================= */
+
+function activityKeyForDate(dateString) {
+  if (!dateString) return null;
+  const date = new Date(dateString + "T12:00:00");
+  const day = date.getDay();
+
+  const map = { 1: "lundi", 2: "mardi", 3: "mercredi", 4: "jeudi", 5: "vendredi", 6: "samedi" };
+  const key = map[day];
+  return (key && ACTIVITIES[key]) ? key : null;
+}
+
+function renderActivitySelect() {
+  const select = document.getElementById("appel-activity");
+  select.innerHTML = "";
+
+  const keys = Object.keys(ACTIVITIES);
+  if (keys.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "Aucune activité (voir Réglages)";
+    select.appendChild(opt);
+    return;
+  }
+
+  keys.forEach(key => {
+    const act = ACTIVITIES[key];
+    const option = document.createElement("option");
+    option.value = key;
+    option.textContent = `${act.icon} ${act.name}`;
+    select.appendChild(option);
+  });
+}
+
+function updateActivityFromDate() {
+  const date = document.getElementById("appel-date").value;
+  const actKey = activityKeyForDate(date);
+  if (actKey) {
+    document.getElementById("appel-activity").value = actKey;
+  }
+  renderAppel();
+}
+
+/* =========================================================
+   GROUPES / CLASSES
+========================================================= */
+
+function getGroups() {
+  const groups = new Set();
+  roster.forEach(student => {
+    if (student.class) groups.add(student.class);
+  });
+  return Array.from(groups).sort((a, b) => a.localeCompare(b, "fr", { numeric: true }));
+}
+
+function renderGroupSelects() {
+  const groups = getGroups();
+  const appelSelect = document.getElementById("appel-group");
+  const bilanSelect = document.getElementById("bilan-group");
+
+  const prevAppel = appelSelect.value;
+  const prevBilan = bilanSelect.value;
+
+  appelSelect.innerHTML = `<option value="">Toutes les classes</option>`;
+  bilanSelect.innerHTML = `<option value="">Toutes les classes</option>`;
+
+  groups.forEach(g => {
+    const opt1 = document.createElement("option");
+    opt1.value = g;
+    opt1.textContent = g;
+    appelSelect.appendChild(opt1);
+
+    const opt2 = document.createElement("option");
+    opt2.value = g;
+    opt2.textContent = g;
+    bilanSelect.appendChild(opt2);
+  });
+
+  if (groups.includes(prevAppel)) appelSelect.value = prevAppel;
+  if (groups.includes(prevBilan)) bilanSelect.value = prevBilan;
+}
+
+/* =========================================================
+   SESSION COURANTE
+========================================================= */
+
+function getCurrentSession() {
+  const date = document.getElementById("appel-date").value;
+  const group = document.getElementById("appel-group").value;
+  const activity = document.getElementById("appel-activity").value;
+
+  return sessions.find(s => s.date === date && s.group === group && s.activity === activity);
+}
+
+/* =========================================================
+   APPEL
+========================================================= */
+
+function renderAppel() {
+  const dateInput = document.getElementById("appel-date");
+  if (!dateInput.value) dateInput.value = todayISO();
+
+  renderActivitySelect();
+  renderGroupSelects();
+
+  const group = document.getElementById("appel-group").value;
+  const list = document.getElementById("students-list");
+
+  let students = [...roster].sort((a, b) => displayName(a).localeCompare(displayName(b), "fr"));
+  if (group) {
+    students = students.filter(s => s.class === group);
+  }
+
+  const session = getCurrentSession();
+  const presenceIds = session?.presenceIds || [];
+
+  document.getElementById("presence-counter").textContent = `${presenceIds.length} / ${students.length}`;
+
+  if (!students.length) {
+    list.innerHTML = `
+      <div class="card empty">
+        <div class="empty-icon">👥</div>
+        <strong>Aucun élève trouvé</strong>
+        <p>Ajoutez des élèves avec l'onglet Élèves ou importez un CSV.</p>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = students.map(student => {
+    const present = presenceIds.includes(student.id);
+    return `
+      <div class="student-row">
+        <div class="student-avatar">${escapeHTML(initials(student))}</div>
+        <div class="student-info">
+          <div class="student-name">${escapeHTML(displayName(student))}</div>
+          <div class="student-class">${escapeHTML(student.class || "")}</div>
+        </div>
+        <button
+          class="presence-button ${present ? "present" : ""}"
+          type="button"
+          onclick="togglePresence('${student.id}')">
+          ${present ? "✓" : "P"}
+        </button>
+      </div>
+    `;
+  }).join("");
+}
+
+function togglePresence(studentId) {
+  const date = document.getElementById("appel-date").value;
+  const group = document.getElementById("appel-group").value;
+  const activity = document.getElementById("appel-activity").value;
+
+  let session = sessions.find(s => s.date === date && s.group === group && s.activity === activity);
+
+  if (!session) {
+    session = { id: uid(), date, group, activity, presenceIds: [] };
+    sessions.push(session);
+  }
+  if (!session.presenceIds) session.presenceIds = [];
+
+  const idx = session.presenceIds.indexOf(studentId);
+  if (idx >= 0) {
+    session.presenceIds.splice(idx, 1);
+  } else {
+    session.presenceIds.push(studentId);
+  }
+
+  saveCurrentSchoolData();
+  renderAppel();
+}
+
+function setAllPresent() {
+  const date = document.getElementById("appel-date").value;
+  const group = document.getElementById("appel-group").value;
+  const activity = document.getElementById("appel-activity").value;
+
+  const students = roster.filter(s => !group || s.class === group);
+  let session = sessions.find(s => s.date === date && s.group === group && s.activity === activity);
+
+  if (!session) {
+    session = { id: uid(), date, group, activity, presenceIds: [] };
+    sessions.push(session);
+  }
+
+  session.presenceIds = students.map(s => s.id);
+  saveCurrentSchoolData();
+  renderAppel();
+  showToast("Tous les élèves sont présents ✅");
+}
+
+function clearCurrentSession() {
+  const date = document.getElementById("appel-date").value;
+  const group = document.getElementById("appel-group").value;
+  const activity = document.getElementById("appel-activity").value;
+
+  const session = sessions.find(s => s.date === date && s.group === group && s.activity === activity);
+  if (session) session.presenceIds = [];
+
+  saveCurrentSchoolData();
+  renderAppel();
+  showToast("Appel effacé");
+}
+
+function saveSession() {
+  const date = document.getElementById("appel-date").value;
+  const group = document.getElementById("appel-group").value;
+  const activity = document.getElementById("appel-activity").value;
+
+  if (!date) {
+    showToast("Choisis une date.");
+    return;
+  }
+
+  let session = sessions.find(s => s.date === date && s.group === group && s.activity === activity);
+  if (!session) {
+    session = { id: uid(), date, group, activity, presenceIds: [] };
+    sessions.push(session);
+  }
+
+  saveCurrentSchoolData();
+  showToast("Appel sauvegardé 💾");
+  renderHome();
+}
+
+/* =========================================================
+   EXPORT PDF DES PRÉSENTS
+========================================================= */
+
+function exportPresentPDF() {
+  const session = getCurrentSession();
+  const presenceIds = session && session.presenceIds ? session.presenceIds : [];
+
+  if (presenceIds.length === 0) {
+    showToast("Aucun élève présent à exporter !");
+    return;
+  }
+
+  const presentStudents = roster.filter(student => presenceIds.includes(student.id));
+
+  presentStudents.sort((a, b) => {
+    const compNom = String(a.lastname || "").localeCompare(String(b.lastname || ""), "fr", { sensitivity: "base" });
+    if (compNom !== 0) return compNom;
+    return String(a.firstname || "").localeCompare(String(b.firstname || ""), "fr", { sensitivity: "base" });
+  });
+
+  const dateVal = document.getElementById("appel-date").value;
+  const dateStr = formatDate(dateVal);
+  const groupVal = document.getElementById("appel-group").value || "Toutes les classes";
+  const activityKey = document.getElementById("appel-activity").value;
+  const activityName = (ACTIVITIES[activityKey] && ACTIVITIES[activityKey].name) ? ACTIVITIES[activityKey].name : (activityKey || "Séance");
+
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("Erreur de chargement du module PDF. Vérifiez votre connexion Internet.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4"
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 20;
+  let y = 20;
+
+  const schoolTitle = (currentSchool.name || "ASSOCIATION SPORTIVE").toUpperCase() + (currentSchool.city ? ` - ${currentSchool.city.toUpperCase()}` : "");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(29, 78, 216);
+  doc.text(schoolTitle, margin, y);
+
+  y += 7;
+  doc.setFontSize(13);
+  doc.setTextColor(30, 41, 59);
+  doc.text("Feuille d'appel - Liste des présents", margin, y);
+
+  y += 5;
+  doc.setDrawColor(203, 213, 225);
+  doc.setLineWidth(0.5);
+  doc.line(margin, y, pageWidth - margin, y);
+
+  y += 9;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(71, 85, 105);
+  doc.text("Date : " + dateStr + "   |   Activité : " + activityName + "   |   Groupe : " + groupVal, margin, y);
+
+  y += 6;
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(22, 163, 74);
+  doc.text("Nombre de présents : " + presentStudents.length, margin, y);
+
+  y += 8;
+  doc.setDrawColor(226, 232, 240);
+  doc.setFillColor(241, 245, 249);
+  doc.rect(margin, y, pageWidth - 2 * margin, 8, "FD");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(51, 65, 85);
+  doc.text("N°", margin + 4, y + 5.5);
+  doc.text("NOM", margin + 22, y + 5.5);
+  doc.text("PRÉNOM", margin + 105, y + 5.5);
+
+  y += 8;
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(15, 23, 42);
+
+  presentStudents.forEach((st, idx) => {
+    if (y > 270) {
+      doc.addPage();
+      y = 20;
+      doc.setFillColor(241, 245, 249);
+      doc.rect(margin, y, pageWidth - 2 * margin, 8, "FD");
+      doc.setFont("helvetica", "bold");
+      doc.text("N°", margin + 4, y + 5.5);
+      doc.text("NOM", margin + 22, y + 5.5);
+      doc.text("PRÉNOM", margin + 105, y + 5.5);
+      y += 8;
+      doc.setFont("helvetica", "normal");
+    }
+
+    if (idx % 2 === 1) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(margin, y, pageWidth - 2 * margin, 7, "F");
+    }
+
+    doc.text(String(idx + 1), margin + 4, y + 5);
+    doc.text(String(st.lastname || "").toUpperCase(), margin + 22, y + 5);
+    doc.text(String(st.firstname || ""), margin + 105, y + 5);
+
+    doc.setDrawColor(241, 245, 249);
+    doc.line(margin, y + 7, pageWidth - margin, y + 7);
+
+    y += 7;
+  });
+
+  const cleanDate = dateVal || "appel";
+  doc.save("presents_" + (currentSchool.city || "AS") + "_" + cleanDate + ".pdf");
+  showToast("Export PDF des présents réussi 📄");
+}
+
+/* =========================================================
+   BILAN DES PRÉSENCES
+========================================================= */
+
+function renderBilan() {
+  renderGroupSelects();
+
+  const container = document.getElementById("bilan-list");
+  const group = document.getElementById("bilan-group").value;
+  const search = (document.getElementById("bilan-search").value || "").toLowerCase();
+
+  let students = [...roster].sort((a, b) => displayName(a).localeCompare(displayName(b), "fr"));
+
+  if (group) students = students.filter(s => s.class === group);
+  if (search) students = students.filter(s => displayName(s).toLowerCase().includes(search));
+
+  if (!students.length) {
+    container.innerHTML = `
+      <div class="card empty">
+        <div class="empty-icon">📊</div>
+        <strong>Aucun élève trouvé</strong>
+        <p>Modifiez vos filtres ou ajoutez des élèves.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = students.map(student => {
+    const total = getStudentPresenceCount(student.id);
+    return `
+      <div class="bilan-student">
+        <div class="bilan-header">
+          <div class="student-avatar">${escapeHTML(initials(student))}</div>
+          <div class="bilan-name">
+            <strong>${escapeHTML(displayName(student))}</strong>
+            <small>${escapeHTML(student.class || "")}</small>
+          </div>
+          <div class="total-presence">
+            ${total}
+            <small>présence${total > 1 ? "s" : ""}</small>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* =========================================================
+   STATISTIQUES & ACCUEIL
+========================================================= */
+
+function getStats() {
+  let totalPresences = 0;
+  sessions.forEach(s => {
+    if (s.presenceIds) totalPresences += s.presenceIds.length;
+  });
+
+  const totalPossible = sessions.reduce((tot, s) => {
+    const count = roster.filter(st => !s.group || st.class === s.group).length;
+    return tot + count;
+  }, 0);
+
+  const rate = totalPossible > 0 ? Math.round((totalPresences / totalPossible) * 100) : 0;
+
+  return {
+    students: roster.length,
+    sessions: sessions.length,
+    presences: totalPresences,
+    rate
+  };
+}
+
+function getStudentPresenceCount(studentId) {
+  let count = 0;
+  sessions.forEach(s => {
+    if (s.presenceIds && s.presenceIds.includes(studentId)) count++;
+  });
+  return count;
+}
+
+function renderHome() {
+  const stats = getStats();
+  document.getElementById("stat-students").textContent = stats.students;
+  document.getElementById("stat-sessions").textContent = stats.sessions;
+  document.getElementById("stat-presences").textContent = stats.presences;
+  document.getElementById("stat-rate").textContent = stats.rate + "%";
+
+  renderTopStudents();
+  renderActivityCards();
+}
+
+function renderTopStudents() {
+  const container = document.getElementById("top-students");
+  const top = roster
+    .map(st => ({ student: st, count: getStudentPresenceCount(st.id) }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  if (!top.length) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🏃</div>Aucun élève enregistré.</div>`;
+    return;
+  }
+
+  container.innerHTML = top.map((item, index) => `
+    <div class="student-row" style="margin-bottom:7px;">
+      <div class="student-avatar" style="background:linear-gradient(135deg, ${index === 0 ? "#f59e0b" : index === 1 ? "#94a3b8" : index === 2 ? "#b45309" : "#2563eb"}, #7c3aed);">
+        ${index + 1}
+      </div>
+      <div class="student-info">
+        <div class="student-name">${escapeHTML(displayName(item.student))}</div>
+        <div class="student-class">${escapeHTML(item.student.class || "")}</div>
+      </div>
+      <div class="total-presence">
+        ${item.count} présence${item.count > 1 ? "s" : ""}
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderActivityCards() {
+  const container = document.getElementById("activity-cards");
+  const keys = Object.keys(ACTIVITIES);
+
+  if (keys.length === 0) {
+    container.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--muted);">Aucun créneau configuré. Rendez-vous dans Réglages.</p>`;
+    return;
+  }
+
+  container.innerHTML = keys.map(key => {
+    const act = ACTIVITIES[key];
+    const count = sessions.filter(s => s.activity === key).length;
+    return `
+      <div class="activity-card" style="background:#f1f5f9;border:1px solid var(--border);">
+        <span class="activity-icon">${act.icon}</span>
+        <span>${escapeHTML(act.name)}</span>
+        <span class="activity-count">${count}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+/* =========================================================
+   PAGE RÉGLAGES (IDENTIFICATION & CRÉNEAUX)
+========================================================= */
+
+function renderSettingsPage() {
+  document.getElementById("setting-school-name").value = currentSchool.name || "";
+  document.getElementById("setting-school-city").value = currentSchool.city || "";
+  document.getElementById("setting-school-slogan").value = currentSchool.slogan || "";
+
+  const tbody = document.getElementById("schedule-settings-tbody");
+  tbody.innerHTML = "";
+
+  const sched = currentSchool.schedule || DEFAULT_SCHEDULE;
+
+  ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"].forEach(dayKey => {
+    const item = sched[dayKey] || { enabled: false, name: "", icon: "⚽" };
+
+    const tr = document.createElement("tr");
+    tr.className = "schedule-row";
+    tr.innerHTML = `
+      <td>
+        <input
+          type="checkbox"
+          class="switch-checkbox"
+          id="sched-check-${dayKey}"
+          ${item.enabled ? "checked" : ""}>
+      </td>
+      <td>
+        <span class="day-badge">${DAY_LABELS[dayKey]}</span>
+      </td>
+      <td>
+        <input
+          type="text"
+          class="slot-input"
+          id="sched-name-${dayKey}"
+          placeholder="Activité enseignée (ex: Futsal, Badminton...)"
+          value="${escapeHTML(item.name || "")}">
+      </td>
+      <td style="width:70px;">
+        <select class="slot-icon-select" id="sched-icon-${dayKey}">
+          ${EMOJI_OPTIONS.map(e => `<option value="${e}" ${item.icon === e ? "selected" : ""}>${e}</option>`).join("")}
+        </select>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function saveCurrentSchoolSettings() {
+  const name = document.getElementById("setting-school-name").value.trim() || "ASSOCIATION SPORTIVE";
+  const city = document.getElementById("setting-school-city").value.trim();
+  const slogan = document.getElementById("setting-school-slogan").value.trim() || "BOUGE • PARTICIPE • PROGRESSE";
+
+  currentSchool.name = name;
+  currentSchool.city = city;
+  currentSchool.slogan = slogan;
+
+  const sched = {};
+  ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"].forEach(dayKey => {
+    const enabled = document.getElementById(`sched-check-${dayKey}`).checked;
+    const actName = document.getElementById(`sched-name-${dayKey}`).value.trim();
+    const actIcon = document.getElementById(`sched-icon-${dayKey}`).value;
+
+    sched[dayKey] = {
+      enabled: enabled,
+      name: actName,
+      icon: actIcon
+    };
+  });
+
+  currentSchool.schedule = sched;
+  saveCurrentSchoolData();
+
+  buildActivitiesMap();
+  updateAppHeader();
+  renderActivitySelect();
+
+  showToast("Réglages enregistrés & synchronisés Cloud 💾");
+}
+
+/* =========================================================
+   MODAL ÉTABLISSEMENTS (CHANGER / CRÉER)
+========================================================= */
+
+function openSchoolsModal() {
+  const container = document.getElementById("schools-list-container");
+  container.innerHTML = "";
+
+  Object.values(schoolsDB).forEach(s => {
+    const isAct = s.id === currentSchoolId;
+    const div = document.createElement("div");
+    div.className = `school-card-item ${isAct ? "active" : ""}`;
+    div.onclick = () => switchSchool(s.id);
+
+    div.innerHTML = `
+      <div class="school-item-info">
+        <strong>${escapeHTML(s.name)}</strong>
+        <small>${escapeHTML(s.city || "Ville non renseignée")} • ${(s.roster || []).length} élève(s)</small>
+      </div>
+      <div>
+        ${isAct ? `<span class="school-badge">Actif</span>` : `<button type="button" class="secondary-button" style="min-height:36px;padding:4px 10px;font-size:12px;">Activer</button>`}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
+  document.getElementById("schools-modal").classList.add("show");
+}
+
+function closeSchoolsModal() {
+  document.getElementById("schools-modal").classList.remove("show");
+}
+
+function outsideSchoolsModal(e) {
+  if (e.target.id === "schools-modal") closeSchoolsModal();
+}
+
+function switchSchool(schoolId) {
+  if (schoolId === currentSchoolId) {
+    closeSchoolsModal();
+    return;
+  }
+
+  loadActiveSchool(schoolId, false);
+  closeSchoolsModal();
+
+  renderHome();
+  renderAppel();
+  renderBilan();
+  renderRoster();
+  showToast(`Établissement activé : ${currentSchool.name} 🏫`);
+}
+
+function createNewSchool() {
+  const nameInput = document.getElementById("new-school-name").value.trim();
+  const cityInput = document.getElementById("new-school-city").value.trim();
+
+  if (!nameInput) {
+    showToast("Veuillez indiquer au minimum le nom de l'établissement.");
+    return;
+  }
+
+  const newId = "school_" + uid();
+  const newSchool = {
+    id: newId,
+    name: nameInput,
+    city: cityInput,
+    slogan: "BOUGE • PARTICIPE • PROGRESSE",
+    schedule: JSON.parse(JSON.stringify(DEFAULT_SCHEDULE)),
+    roster: [],
+    sessions: []
+  };
+
+  schoolsDB[newId] = newSchool;
+  saveSchoolsDB(true);
+
+  document.getElementById("new-school-name").value = "";
+  document.getElementById("new-school-city").value = "";
+
+  switchSchool(newId);
+}
+
+function deleteCurrentSchool() {
+  const keys = Object.keys(schoolsDB);
+  if (keys.length <= 1) {
+    alert("Impossible de supprimer le seul établissement existant.");
+    return;
+  }
+
+  const confirmed = confirm(`Êtes-vous sûr de vouloir supprimer définitivement l'établissement "${currentSchool.name}" et toutes ses données associées (y compris sur le Cloud) ?`);
+  if (!confirmed) return;
+
+  const toDeleteId = currentSchoolId;
+  delete schoolsDB[toDeleteId];
+  deleteSchoolFromFirestore(toDeleteId);
+  saveSchoolsDB(false);
+
+  const nextId = Object.keys(schoolsDB)[0];
+  switchSchool(nextId);
+  showToast("Établissement supprimé");
+}
+
+/* =========================================================
+   GESTION DES ÉLÈVES (MODAL)
+========================================================= */
+
+function openRosterModal() {
+  renderRoster();
+  document.getElementById("roster-modal").classList.add("show");
+  setTimeout(() => document.getElementById("new-lastname").focus(), 100);
+}
+
+function closeRosterModal() {
+  document.getElementById("roster-modal").classList.remove("show");
+}
+
+function outsideModal(e) {
+  if (e.target.id === "roster-modal") closeRosterModal();
+}
+
+function renderRoster() {
+  const container = document.getElementById("roster-list");
+  const sorted = [...roster].sort((a, b) => displayName(a).localeCompare(displayName(b), "fr"));
+
+  document.getElementById("roster-count").textContent = sorted.length;
+
+  if (!sorted.length) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">👥</div>Aucun élève enregistré.</div>`;
+    return;
+  }
+
+  container.innerHTML = sorted.map(st => `
+    <div class="roster-row">
+      <div class="student-avatar">${escapeHTML(initials(st))}</div>
+      <div class="roster-row-info">
+        <strong>${escapeHTML(displayName(st))}</strong>
+        <small>${escapeHTML(st.class || "")}</small>
+      </div>
+      <button class="delete-student" type="button" onclick="deleteStudent('${st.id}')">🗑️</button>
+    </div>
+  `).join("");
+}
+
+function addStudent() {
+  const lastname = document.getElementById("new-lastname").value.trim();
+  const firstname = document.getElementById("new-firstname").value.trim();
+  const studentClass = document.getElementById("new-class").value.trim();
+
+  if (!lastname || !firstname) {
+    showToast("Indique au minimum le nom et le prénom.");
+    return;
+  }
+
+  roster.push({
+    id: uid(),
+    lastname,
+    firstname,
+    class: studentClass
+  });
+
+  saveCurrentSchoolData();
+
+  document.getElementById("new-lastname").value = "";
+  document.getElementById("new-firstname").value = "";
+  document.getElementById("new-class").value = "";
+
+  renderRoster();
+  renderGroupSelects();
+  renderHome();
+  showToast("Élève ajouté ✅");
+}
+
+function deleteStudent(id) {
+  const st = roster.find(s => s.id === id);
+  if (!st) return;
+
+  if (!confirm(`Supprimer ${displayName(st)} ?`)) return;
+
+  roster = roster.filter(s => s.id !== id);
+  sessions.forEach(s => {
+    if (s.presenceIds) s.presenceIds = s.presenceIds.filter(sid => sid !== id);
+  });
+
+  saveCurrentSchoolData();
+  renderRoster();
+  renderGroupSelects();
+  renderHome();
+  renderAppel();
+  renderBilan();
+  showToast("Élève supprimé");
+}
+
+/* =========================================================
+   IMPORT CSV
+========================================================= */
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = "";
+  let insideQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      if (insideQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        insideQuotes = !insideQuotes;
+      }
+    } else if (char === ";" && !insideQuotes) {
+      result.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+function importCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+    if (!lines.length) {
+      showToast("Le fichier est vide.");
+      return;
+    }
+
+    let added = 0;
+    let ignored = 0;
+
+    const firstFields = parseCSVLine(lines[0]);
+    const firstLine = firstFields.join(";").toLowerCase();
+    const hasHeader = firstLine.includes("nom") || firstLine.includes("prénom") || firstLine.includes("licence");
+    const startIndex = hasHeader ? 1 : 0;
+
+    for (let i = startIndex; i < lines.length; i++) {
+      const fields = parseCSVLine(lines[i]);
+      if (fields.length < 2) {
+        ignored++;
+        continue;
+      }
+
+      let lastname, firstname, studentClass;
+
+      if (fields.length >= 4) {
+        lastname = (fields[1] || "").trim();
+        firstname = (fields[2] || "").trim();
+        studentClass = (fields[3] || "").trim();
+      } else {
+        lastname = (fields[0] || "").trim();
+        firstname = (fields[1] || "").trim();
+        studentClass = (fields[2] || "").trim();
+      }
+
+      lastname = lastname.replace(/^"|"$/g, "");
+      firstname = firstname.replace(/^"|"$/g, "");
+      studentClass = studentClass.replace(/^"|"$/g, "");
+
+      if (!lastname || !firstname) {
+        ignored++;
+        continue;
+      }
+
+      const exists = roster.some(s =>
+        String(s.lastname).trim().toLowerCase() === lastname.toLowerCase() &&
+        String(s.firstname).trim().toLowerCase() === firstname.toLowerCase()
+      );
+
+      if (exists) {
+        ignored++;
+        continue;
+      }
+
+      roster.push({
+        id: uid(),
+        lastname,
+        firstname,
+        class: studentClass
+      });
+      added++;
+    }
+
+    saveCurrentSchoolData();
+
+    renderRoster();
+    renderGroupSelects();
+    renderHome();
+    renderAppel();
+    renderBilan();
+
+    let msg = `${added} élève${added > 1 ? "s" : ""} importé${added > 1 ? "s" : ""} ✅`;
+    if (ignored > 0) msg += ` (${ignored} ignoré${ignored > 1 ? "s" : ""})`;
+    showToast(msg);
+
+    event.target.value = "";
+  };
+  reader.readAsText(file, "UTF-8");
+}
+
+/* =========================================================
+   EXPORTS CSV & JSON
+========================================================= */
+
+function csvEscape(value) {
+  const s = String(value ?? "");
+  if (s.includes(";") || s.includes('"') || s.includes("\n")) {
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+
+function downloadFile(filename, content, type = "text/plain") {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportStudentsCSV() {
+  const lines = ["Nom;Prénom;Classe"];
+  roster.forEach(s => lines.push([s.lastname, s.firstname, s.class].map(csvEscape).join(";")));
+  downloadFile(`eleves_${currentSchool.city || "AS"}.csv`, "\uFEFF" + lines.join("\n"), "text/csv;charset=utf-8");
+  showToast("Liste des élèves exportée 📤");
+}
+
+function exportSessionsCSV() {
+  const lines = ["Date;Classe;Activité;Élève;Présent"];
+  sessions.forEach(sess => {
+    const students = roster.filter(s => !sess.group || s.class === sess.group);
+    students.forEach(st => {
+      const pres = sess.presenceIds && sess.presenceIds.includes(st.id);
+      lines.push([
+        sess.date,
+        sess.group,
+        ACTIVITIES[sess.activity]?.name || sess.activity,
+        displayName(st),
+        pres ? "P" : ""
+      ].map(csvEscape).join(";"));
+    });
+  });
+  downloadFile(`presences_${currentSchool.city || "AS"}.csv`, "\uFEFF" + lines.join("\n"), "text/csv;charset=utf-8");
+  showToast("Présences exportées 📤");
+}
+
+function exportBackup() {
+  const backup = {
+    application: "AS Appel Multi-Établissements Cloud",
+    version: "2026",
+    exportDate: new Date().toISOString(),
+    schoolsDB
+  };
+  downloadFile(`sauvegarde_complete_AS.json`, JSON.stringify(backup, null, 2), "application/json");
+  showToast("Sauvegarde complète créée 💾");
+}
+
+/* =========================================================
+   INITIALISATION
+========================================================= */
+
+function init() {
+  initSchoolsDatabase();
+
+  document.getElementById("appel-date").value = todayISO();
+  renderActivitySelect();
+  renderGroupSelects();
+
+  const actKey = activityKeyForDate(todayISO());
+  if (actKey) document.getElementById("appel-activity").value = actKey;
+
+  renderHome();
+  renderAppel();
+  renderBilan();
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      closeRosterModal();
+      closeSchoolsModal();
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+
+</body>
+</html>

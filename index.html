@@ -109,7 +109,7 @@ main { max-width: 1100px; margin: auto; padding: 18px 14px; }
       </div>
     </div>
     <div class="header-actions">
-      <span id="cloud-badge" class="cloud-badge" onclick="showCloudDiagnostic()">☁️ Connexion...</span>
+      <span id="cloud-badge" class="cloud-badge" onclick="forceSyncFromCloud()">☁️ Connexion...</span>
       <button class="header-btn" type="button" onclick="openSchoolsModal()">🏫 Établissement</button>
     </div>
   </div>
@@ -354,8 +354,6 @@ function initApp() {
   } catch (e) { schoolsDB = {}; }
 
   if (!schoolsDB["rouillac"]) {
-    let oldRoster = [];
-    try { oldRoster = JSON.parse(localStorage.getItem("as_roster_v3") || "[]"); } catch(e){}
     schoolsDB["rouillac"] = {
       id: "rouillac",
       name: "AS CLAUDIE HAIGNERÉ",
@@ -363,10 +361,10 @@ function initApp() {
       slogan: "ROUILLAC • BOUGE • PARTICIPE • PROGRESSE",
       accessCode: "1234",
       schedule: DEFAULT_SCHEDULE,
-      roster: oldRoster,
+      roster: [],
       sessions: []
     };
-    saveLocal();
+    saveLocalOnly();
   }
 
   currentSchoolId = localStorage.getItem("as_active_school_id") || "rouillac";
@@ -396,7 +394,14 @@ function loadSchool(id) {
   document.getElementById("app-school-sub").textContent = currentSchool.city || "";
 }
 
-function saveLocal() {
+/* Enregistrement local pur (sans écraser avec des valeurs non initialisées) */
+function saveLocalOnly() {
+  try {
+    localStorage.setItem("as_schools_db_master", JSON.stringify(schoolsDB));
+  } catch(e){}
+}
+
+function saveCurrentStateToLocal() {
   try {
     if (currentSchool) {
       currentSchool.roster = roster;
@@ -407,12 +412,11 @@ function saveLocal() {
   } catch(e){}
 }
 
-/* ENVOI CLOUD FIRESTORE AVEC NETTOYAGE STRICT */
+/* ENVOI CLOUD FIRESTORE */
 function pushToCloud(school) {
   if (!db || !school) return;
   const targetId = school.id || currentSchoolId || "rouillac";
 
-  // Nettoyage JSON pour éviter tout rejet de Firestore
   const cleanSchool = JSON.parse(JSON.stringify(school));
   cleanSchool.id = targetId;
 
@@ -425,24 +429,23 @@ function pushToCloud(school) {
     .catch(err => {
       console.error("Erreur Firestore:", err);
       updateCloudBadge("error", "⚠️ Erreur Cloud");
-      alert("Erreur Firestore : " + err.message + "\nAssurez-vous que les Règles sont bien 'allow read, write: if true;'");
+      alert("Erreur Firestore : " + err.message);
     });
 }
 
 function forceUpload() {
-  saveLocal();
+  saveCurrentStateToLocal();
   if (currentSchool) {
     pushToCloud(currentSchool);
   }
 }
 
-/* SYNCHRO EN TEMPS RÉEL SUR LES 10 APPAREILS */
+/* SYNCHRO EN TEMPS RÉEL SUR TOUS LES APPAREILS */
 function listenCloud() {
   if (!db) { updateCloudBadge("offline", "🟠 Hors-ligne"); return; }
   try {
     db.collection(FIRESTORE_COLLECTION).onSnapshot(snapshot => {
       let updated = false;
-      let cloudCount = 0;
 
       snapshot.forEach(docSnap => {
         const docId = docSnap.id;
@@ -450,26 +453,26 @@ function listenCloud() {
         if (data && docId !== "init") {
           data.id = data.id || docId;
           schoolsDB[docId] = data;
-          if (docId === currentSchoolId) {
-            cloudCount = (data.roster || []).length;
-          }
           updated = true;
         }
       });
 
       if (updated) {
-        saveLocal();
+        // Enregistre en local ce qui vient d'être reçu du Cloud
+        saveLocalOnly();
+
+        // Si l'AS active a été mise à jour depuis le Cloud, on la charge d'abord !
         if (schoolsDB[currentSchoolId]) {
           loadSchool(currentSchoolId);
           renderHome();
           renderAppel();
           renderBilan();
-          if (document.getElementById("roster-modal").classList.contains("show")) {
-            renderRoster();
-          }
+          renderRoster();
         }
       }
-      updateCloudBadge("online", `☁️ Synchronisé (${cloudCount || roster.length} élv.)`);
+
+      const count = (currentSchool && currentSchool.roster) ? currentSchool.roster.length : roster.length;
+      updateCloudBadge("online", `☁️ Synchronisé (${count} élv.)`);
     }, err => {
       console.warn("Écoute cloud:", err);
       updateCloudBadge("offline", "🟠 Hors-ligne");
@@ -484,47 +487,34 @@ function forceSyncFromCloud() {
   updateCloudBadge("syncing", "⏳ Chargement...");
 
   db.collection(FIRESTORE_COLLECTION).get().then(snapshot => {
-    let found = false;
-    let total = 0;
-
+    let count = 0;
     snapshot.forEach(docSnap => {
       const docId = docSnap.id;
       const data = docSnap.data();
       if (data && docId !== "init") {
         data.id = data.id || docId;
         schoolsDB[docId] = data;
-        if (docId === currentSchoolId) {
-          total = (data.roster || []).length;
-          found = true;
-        }
+        count++;
       }
     });
 
-    if (found || Object.keys(schoolsDB).length > 0) {
-      saveLocal();
+    if (count > 0 && schoolsDB[currentSchoolId]) {
+      saveLocalOnly();
       loadSchool(currentSchoolId);
       renderHome();
       renderAppel();
       renderBilan();
       renderRoster();
       updateCloudBadge("online", `☁️ Synchronisé (${roster.length} élv.)`);
-      alert(`Synchronisation réussie ! ${roster.length} élève(s) chargé(s) depuis le Cloud.`);
+      showToast(`${roster.length} élèves chargés depuis le Cloud ! ✅`);
     } else {
-      updateCloudBadge("online", "☁️ Cloud vide (0 élève)");
-      alert("La base Firestore est actuellement vide. Envoyez d'abord les élèves depuis votre téléphone avec le bouton 'Envoyer vers le Cloud'.");
+      updateCloudBadge("online", `☁️ Synchronisé (${roster.length} élv.)`);
+      showToast("Données à jour.");
     }
   }).catch(err => {
-    alert("Erreur de connexion Firebase : " + err.message);
+    alert("Erreur de synchronisation : " + err.message);
     updateCloudBadge("offline", "🟠 Hors-ligne");
   });
-}
-
-function showCloudDiagnostic() {
-  const count = roster.length;
-  const msg = `État Firebase :\n• Appareil : ${count} élève(s)\n• AS active : ${currentSchool.name || "AS"}\n\nCliquez sur OK pour forcer la récupération depuis le Cloud.`;
-  if (confirm(msg)) {
-    forceSyncFromCloud();
-  }
 }
 
 /* NAVIGATION */
@@ -656,7 +646,7 @@ function togglePresence(id) {
   if (idx >= 0) s.presenceIds.splice(idx, 1);
   else s.presenceIds.push(id);
 
-  saveLocal();
+  saveCurrentStateToLocal();
   renderAppel();
 }
 
@@ -675,7 +665,7 @@ function setAllPresent() {
   if (curGrp) sts = sts.filter(x => x.class === curGrp);
   s.presenceIds = sts.map(x => x.id);
 
-  saveLocal();
+  saveCurrentStateToLocal();
   renderAppel();
 }
 
@@ -687,12 +677,12 @@ function clearCurrentSession() {
   let s = sessions.find(x => x.date === curDate && x.activity === curAct && x.group === curGrp);
   if (s) s.presenceIds = [];
 
-  saveLocal();
+  saveCurrentStateToLocal();
   renderAppel();
 }
 
 function saveSession() {
-  saveLocal();
+  saveCurrentStateToLocal();
   pushToCloud(currentSchool);
   renderHome();
 }
@@ -819,7 +809,7 @@ function saveCurrentSchoolSettings() {
   });
   currentSchool.schedule = sched;
 
-  saveLocal();
+  saveCurrentStateToLocal();
   loadSchool(currentSchoolId);
   pushToCloud(currentSchool);
   renderHome();
@@ -863,14 +853,14 @@ function addStudent() {
   document.getElementById("new-firstname").value = "";
   document.getElementById("new-class").value = "";
 
-  saveLocal();
+  saveCurrentStateToLocal();
   renderRoster();
   pushToCloud(currentSchool);
 }
 
 function deleteStudent(id) {
   roster = roster.filter(s => s.id !== id);
-  saveLocal();
+  saveCurrentStateToLocal();
   renderRoster();
   pushToCloud(currentSchool);
 }
@@ -913,7 +903,7 @@ function importCSV(e) {
       }
     });
 
-    saveLocal();
+    saveCurrentStateToLocal();
     renderRoster();
     pushToCloud(currentSchool);
 
@@ -957,7 +947,7 @@ function createNewSchool() {
 
   const id = "sc_" + Date.now().toString(36);
   schoolsDB[id] = { id, name, city, accessCode: code, schedule: DEFAULT_SCHEDULE, roster: [], sessions: [] };
-  saveLocal();
+  saveCurrentStateToLocal();
   loadSchool(id);
   pushToCloud(currentSchool);
   closeModal("schools-modal");

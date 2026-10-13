@@ -3,19 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
 <title id="html-title">AS Gestion - Appel & Présences</title>
 
-<meta name="application-name" content="AS Appel">
-<meta name="apple-mobile-web-app-title" content="AS Appel">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<!-- PWA Tags -->
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1d4ed8">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231d4ed8'/><text x='50%' y='68%' font-size='60' text-anchor='middle'>🏆</text></svg>">
-
+<!-- Librairies externes (chargées de façon asynchrone pour ne jamais bloquer la page) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -27,247 +22,82 @@
   --text: #172033;
   --muted: #718096;
   --primary: #2563eb;
-  --primary-dark: #1d4ed8;
   --green: #16a34a;
-  --green-light: #dcfce7;
-  --orange: #f97316;
-  --orange-light: #ffedd5;
-  --purple: #8b5cf6;
   --red: #ef4444;
-  --red-light: #fee2e2;
   --border: #e5e7eb;
-  --shadow: 0 8px 25px rgba(15, 23, 42, .08);
-  --radius: 18px;
+  --radius: 16px;
 }
-
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { margin: 0; padding: 0; min-height: 100%; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
-body { padding-bottom: 30px; }
-button, input, select { font-family: inherit; }
-button { cursor: pointer; border: none; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); padding-bottom: 40px; }
+button { cursor: pointer; border: none; font-family: inherit; }
+input, select { font-family: inherit; width: 100%; border-radius: 10px; border: 1px solid var(--border); padding: 9px 11px; font-size: 15px; outline: none; background: #fff; }
 .hidden { display: none !important; }
 
 /* HEADER */
-.app-header {
-  background: linear-gradient(135deg, #1d4ed8, #7c3aed, #ec4899);
-  color: white;
-  padding: 16px 16px 18px;
-  box-shadow: 0 5px 20px rgba(37, 99, 235, .25);
-}
-.header-inner {
-  max-width: 1100px;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.header-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.logo {
-  width: 52px; height: 52px; border-radius: 16px;
-  background: rgba(255,255,255,.18);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28px; flex-shrink: 0;
-}
-.header-title h1 { margin: 0; font-size: 19px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.header-title p { margin: 3px 0 0; font-size: 11px; opacity: .95; font-weight: bold; letter-spacing: .5px; }
-.header-actions { display: flex; align-items: center; gap: 8px; }
-.cloud-badge {
-  font-size: 11px; font-weight: bold; padding: 6px 9px; border-radius: 10px;
-  background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3); color: white;
-}
-.cloud-badge.online { background: rgba(34,197,94,.25); border-color: rgba(34,197,94,.5); }
-.cloud-badge.offline { background: rgba(249,115,22,.25); border-color: rgba(249,115,22,.5); }
-.switch-school-btn {
-  background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.4);
-  color: white; padding: 7px 11px; border-radius: 12px; font-size: 12px; font-weight: bold;
-}
+.app-header { background: linear-gradient(135deg, #1d4ed8, #7c3aed); color: #fff; padding: 14px 14px 16px; box-shadow: 0 4px 15px rgba(0,0,0,.15); }
+.header-inner { max-width: 1000px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.header-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.logo { width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.header-title h1 { font-size: 17px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.header-title p { font-size: 11px; opacity: .9; font-weight: bold; }
+.header-actions { display: flex; align-items: center; gap: 6px; }
+.cloud-badge { font-size: 11px; font-weight: bold; padding: 5px 8px; border-radius: 8px; background: rgba(255,255,255,.2); color: #fff; }
+.cloud-badge.online { background: rgba(34,197,94,.35); }
+.btn-header { background: rgba(255,255,255,.25); color: #fff; border: 1px solid rgba(255,255,255,.4); padding: 6px 10px; border-radius: 10px; font-size: 11.5px; font-weight: bold; }
 
 /* NAVIGATION */
-.main-nav-wrapper {
-  position: sticky; top: 0; z-index: 2000; background: white;
-  border-bottom: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,.08);
-}
-.main-nav {
-  max-width: 1100px; margin: auto; display: grid; grid-template-columns: repeat(5, 1fr);
-  gap: 5px; padding: 7px;
-}
-.main-nav-button {
-  min-height: 58px; border-radius: 12px; background: #f8fafc; color: #475569;
-  display: flex; flex-direction: column; justify-content: center; align-items: center;
-  gap: 2px; font-size: 11px; transition: .15s;
-}
-.main-nav-button span { font-size: 19px; line-height: 1; }
-.main-nav-button strong { font-size: 11px; }
-.main-nav-button.active {
-  background: linear-gradient(135deg, #2563eb, #7c3aed); color: white;
-  box-shadow: 0 5px 12px rgba(37,99,235,.25);
-}
+.main-nav-wrapper { position: sticky; top: 0; z-index: 100; background: #fff; border-bottom: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+.main-nav { max-width: 1000px; margin: auto; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; }
+.nav-btn { min-height: 54px; border-radius: 10px; background: #f8fafc; color: #475569; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; font-size: 11px; font-weight: bold; }
+.nav-btn span { font-size: 18px; }
+.nav-btn.active { background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; }
 
 /* PAGES & CARDS */
-main { max-width: 1100px; margin: auto; padding: 18px 14px 40px; }
+main { max-width: 1000px; margin: auto; padding: 15px 12px; }
 .page { display: none; }
 .page.active { display: block; }
-.page-title { margin: 5px 0 16px; }
-.page-title h2 { margin: 0; font-size: 24px; }
-.page-title p { margin: 5px 0 0; color: var(--muted); font-size: 14px; }
-.card {
-  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
-  border: 1px solid var(--border); padding: 17px; margin-bottom: 15px;
-}
+.card { background: #fff; border-radius: var(--radius); border: 1px solid var(--border); padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(0,0,0,.03); }
+.card h3 { margin-bottom: 12px; font-size: 16px; }
 
-/* STATS & ACTIONS */
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
-.stat-card {
-  background: white; border-radius: 17px; padding: 16px 12px; text-align: center;
-  box-shadow: var(--shadow); border: 1px solid var(--border);
-}
-.stat-icon { font-size: 26px; }
-.stat-number { display: block; font-size: 24px; font-weight: 900; margin-top: 4px; }
-.stat-label { font-size: 12px; color: var(--muted); }
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+.stat-card { background: #fff; border-radius: 14px; padding: 12px 8px; text-align: center; border: 1px solid var(--border); }
+.stat-card span { display: block; font-size: 22px; font-weight: 900; }
+.stat-card small { font-size: 11px; color: var(--muted); }
 
-.quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
-.quick-action {
-  min-height: 100px; border-radius: 18px; color: white; padding: 15px; text-align: left;
-  box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: center; gap: 4px;
-}
-.quick-blue { background: linear-gradient(135deg,#2563eb,#3b82f6); }
-.quick-purple { background: linear-gradient(135deg,#7c3aed,#a855f7); }
-.quick-orange { background: linear-gradient(135deg,#ea580c,#f97316); }
+/* APPEL */
+.toolbar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.field label { display: block; font-size: 12px; font-weight: bold; color: var(--muted); margin-bottom: 4px; }
+.save-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.btn-save { min-height: 52px; border-radius: 12px; background: #16a34a; color: #fff; font-size: 15px; font-weight: 900; }
+.btn-pdf { min-height: 52px; border-radius: 12px; background: #dc2626; color: #fff; font-size: 15px; font-weight: 900; }
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.btn-sub { min-height: 42px; border-radius: 10px; background: #e2e8f0; color: #334155; font-weight: bold; font-size: 13px; }
+.btn-sub.danger { background: #fee2e2; color: #b91c1c; }
 
-/* APPEL TOOLBAR */
-.toolbar { background: white; border-radius: 18px; padding: 15px; box-shadow: var(--shadow); margin-bottom: 15px; }
-.toolbar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.field label { display: block; font-weight: bold; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
-.field input, .field select {
-  width: 100%; min-height: 46px; border: 1px solid var(--border); border-radius: 11px;
-  padding: 8px 10px; background: #f8fafc; font-size: 15px; outline: none;
-}
-.save-buttons-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-.save-button {
-  width: 100%; min-height: 60px; border-radius: 14px; background: linear-gradient(135deg,#16a34a,#22c55e);
-  color: white; font-size: 16px; font-weight: 900; box-shadow: 0 5px 15px rgba(22,163,74,.25);
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-}
-.pdf-button {
-  width: 100%; min-height: 60px; border-radius: 14px; background: linear-gradient(135deg,#dc2626,#ef4444);
-  color: white; font-size: 16px; font-weight: 900; box-shadow: 0 5px 15px rgba(220,38,38,.25);
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-}
-.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-.secondary-button {
-  min-height: 48px; border-radius: 12px; background: #e2e8f0; color: #334155; font-weight: 800; font-size: 14px;
-}
-.secondary-button.danger { background: var(--red-light); color: #b91c1c; }
+.status-bar { display: flex; justify-content: space-between; align-items: center; background: #eff6ff; padding: 10px 14px; border-radius: 12px; margin-bottom: 12px; font-weight: bold; }
+.day-hint { font-size: 12px; color: var(--primary); font-weight: bold; margin-top: 4px; display: block; }
+.student-list { display: flex; flex-direction: column; gap: 8px; }
+.student-row { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; }
+.st-info strong { display: block; font-size: 15px; }
+.st-info small { color: var(--muted); font-size: 12px; }
+.btn-p { width: 54px; height: 46px; border-radius: 10px; background: #e2e8f0; font-size: 19px; font-weight: bold; color: #64748b; }
+.btn-p.present { background: #16a34a; color: #fff; }
 
-/* APPEL INFOS & STUDENTS */
-.appel-info {
-  display: flex; justify-content: space-between; align-items: center; background: #eff6ff;
-  border-radius: 13px; padding: 12px 15px; margin-bottom: 12px;
-}
-.day-hint-badge {
-  font-size: 12px; font-weight: bold; color: var(--primary); background: #dbeafe;
-  padding: 5px 10px; border-radius: 8px; margin-top: 6px; display: inline-block;
-}
-.presence-counter { font-size: 21px; font-weight: 900; color: var(--primary); }
-.students-list { display: flex; flex-direction: column; gap: 8px; }
-.student-row {
-  background: white; border: 1px solid var(--border); border-radius: 14px; min-height: 65px;
-  padding: 8px 12px; display: flex; align-items: center; gap: 10px;
-}
-.student-avatar {
-  width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg,#2563eb,#7c3aed);
-  color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; flex-shrink: 0;
-}
-.student-info { flex: 1; min-width: 0; }
-.student-name { font-weight: 900; font-size: 15px; }
-.student-class { color: var(--muted); font-size: 12px; margin-top: 2px; }
-.presence-button {
-  width: 56px; height: 50px; border-radius: 13px; background: #e5e7eb; color: #64748b;
-  font-size: 20px; font-weight: 900; flex-shrink: 0;
-}
-.presence-button.present { background: #22c55e; color: white; box-shadow: 0 4px 10px rgba(34,197,94,.3); }
-
-/* BILAN */
-.bilan-student {
-  background: white; border-radius: 16px; border: 1px solid var(--border); padding: 14px;
-  margin-bottom: 10px; box-shadow: var(--shadow);
-}
-.bilan-header { display: flex; align-items: center; gap: 12px; }
-.bilan-name { flex: 1; }
-.bilan-name strong { display: block; font-size: 16px; }
-.bilan-name small { color: var(--muted); }
-.total-presence {
-  background: var(--green-light); color: #15803d; border-radius: 12px; padding: 7px 12px;
-  text-align: center; font-weight: 900; font-size: 15px;
-}
-
-/* REGLAGES TABLE */
-.schedule-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-.schedule-row { background: #f8fafc; border-radius: 12px; }
-.schedule-row td { padding: 9px; vertical-align: middle; }
-.day-badge { font-weight: 900; font-size: 14px; text-transform: capitalize; min-width: 80px; display: inline-block; }
-.slot-input { width: 100%; min-height: 40px; border: 1px solid var(--border); border-radius: 10px; padding: 6px 10px; font-size: 14px; }
-.slot-icon-select { width: 55px; min-height: 40px; border: 1px solid var(--border); border-radius: 10px; text-align: center; font-size: 18px; }
-.switch-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary); }
-
-/* PORTAIL NEUTRE */
-.portal-card {
-  max-width: 580px; margin: 30px auto; background: white; border-radius: 24px; padding: 26px;
-  box-shadow: 0 15px 40px rgba(0,0,0,.08); text-align: center; border: 1px solid var(--border);
-}
-.portal-icon { font-size: 55px; margin-bottom: 10px; }
-.portal-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-.portal-tab-btn {
-  padding: 12px; border-radius: 12px; background: #f1f5f9; font-weight: bold; font-size: 14px; color: #475569;
-}
-.portal-tab-btn.active { background: var(--primary); color: white; }
-
-/* MODALS & TOAST */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 9999; background: rgba(15,23,42,.7);
-  display: none; align-items: center; justify-content: center; padding: 15px;
-}
+/* MODALS */
+.modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(15,23,42,.65); display: none; align-items: center; justify-content: center; padding: 12px; }
 .modal-overlay.show { display: flex; }
-.modal {
-  width: 100%; max-width: 620px; max-height: 92vh; overflow-y: auto; background: white;
-  border-radius: 22px; box-shadow: 0 20px 60px rgba(0,0,0,.35); padding: 20px;
-}
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.modal-header h2 { margin: 0; font-size: 20px; }
-.close-button { width: 38px; height: 38px; border-radius: 50%; background: #fee2e2; color: #b91c1c; font-size: 20px; font-weight: bold; }
-.add-student-form { display: grid; grid-template-columns: 1fr 1fr 90px auto; gap: 7px; margin-bottom: 15px; }
-.add-student-form input { min-height: 44px; border: 1px solid var(--border); border-radius: 10px; padding: 8px; font-size: 14px; }
-.add-student-form button { border-radius: 10px; background: #16a34a; color: white; font-weight: 900; padding: 0 14px; }
-.roster-list { display: flex; flex-direction: column; gap: 6px; }
-.roster-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; background: #f8fafc; }
-.roster-row-info { flex: 1; }
-.delete-student { width: 36px; height: 36px; border-radius: 9px; background: #fee2e2; color: #dc2626; font-size: 16px; }
-.import-zone { border: 2px dashed #cbd5e1; border-radius: 14px; padding: 14px; text-align: center; margin-top: 15px; }
-.import-zone label { display: inline-block; padding: 10px 14px; background: #e2e8f0; border-radius: 10px; font-weight: bold; cursor: pointer; }
-.import-zone input { display: none; }
-.export-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
-.export-buttons button { min-height: 44px; border-radius: 10px; font-weight: bold; }
+.modal { width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; background: #fff; border-radius: 20px; padding: 18px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.btn-close { width: 34px; height: 34px; border-radius: 50%; background: #fee2e2; color: #dc2626; font-size: 18px; font-weight: bold; }
 
-.toast {
-  position: fixed; left: 50%; bottom: 25px; transform: translateX(-50%) translateY(100px);
-  z-index: 11000; background: #172033; color: white; padding: 12px 18px; border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0,0,0,.25); font-weight: bold; transition: .25s; max-width: 90%; text-align: center;
-}
+/* TOAST */
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #0f172a; color: #fff; padding: 10px 16px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: .2s; z-index: 2000; }
 .toast.show { transform: translateX(-50%) translateY(0); }
-.empty { text-align: center; padding: 35px 15px; color: var(--muted); }
-.empty-icon { font-size: 45px; margin-bottom: 8px; }
 
-@media (max-width: 750px) {
+@media (max-width: 600px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .toolbar-grid, .save-buttons-row, .quick-actions, .add-student-form { grid-template-columns: 1fr; }
-}
-@media (max-width: 480px) {
-  .app-header { padding: 12px 10px; }
-  .logo { width: 44px; height: 44px; font-size: 22px; }
-  .header-title h1 { font-size: 16px; }
-  .main-nav-button { min-height: 52px; }
-  .main-nav-button strong { font-size: 9.5px; }
+  .save-row { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -280,325 +110,184 @@ main { max-width: 1100px; margin: auto; padding: 18px 14px 40px; }
     <div class="header-brand">
       <div class="logo">🏆</div>
       <div class="header-title">
-        <h1 id="app-school-name">AS GESTION</h1>
-        <p id="app-school-sub">APPEL • SUIVI • MULTI-ÉTABLISSEMENTS</p>
+        <h1 id="app-school-name">AS CLAUDIE HAIGNERÉ</h1>
+        <p id="app-school-sub">ROUILLAC • BOUGE • PARTICIPE</p>
       </div>
     </div>
-
     <div class="header-actions">
-      <span id="cloud-badge" class="cloud-badge" title="État Cloud">☁️ Hors-ligne</span>
-      <button id="lock-btn" class="switch-school-btn" type="button" onclick="lockOrSwitchSchool()" title="Changer ou verrouiller">
-        🏫 <span>Établissement</span>
-      </button>
+      <span id="cloud-badge" class="cloud-badge">☁️ Prêt</span>
+      <button class="btn-header" type="button" onclick="openSchoolsModal()">🏫 Établissement</button>
     </div>
   </div>
 </header>
 
-<!-- NAVIGATION (5 ONGLETS) -->
-<div id="main-nav-bar" class="main-nav-wrapper">
+<!-- NAVIGATION -->
+<div class="main-nav-wrapper">
   <nav class="main-nav">
-    <button id="nav-home" class="main-nav-button active" type="button" onclick="showPage('home')">
-      <span>🏠</span><strong>Accueil</strong>
+    <button id="nav-home" class="nav-btn active" type="button" onclick="showPage('home')">
+      <span>🏠</span>Accueil
     </button>
-    <button id="nav-appel" class="main-nav-button" type="button" onclick="showPage('appel')">
-      <span>📋</span><strong>Appel</strong>
+    <button id="nav-appel" class="nav-btn" type="button" onclick="showPage('appel')">
+      <span>📋</span>Appel
     </button>
-    <button id="nav-bilan" class="main-nav-button" type="button" onclick="showPage('bilan')">
-      <span>📊</span><strong>Bilan</strong>
+    <button id="nav-bilan" class="nav-btn" type="button" onclick="showPage('bilan')">
+      <span>📊</span>Bilan
     </button>
-    <button class="main-nav-button" type="button" onclick="openRosterModal()">
-      <span>👥</span><strong>Élèves</strong>
+    <button class="nav-btn" type="button" onclick="openRosterModal()">
+      <span>👥</span>Élèves
     </button>
-    <button id="nav-settings" class="main-nav-button" type="button" onclick="showPage('settings')">
-      <span>⚙️</span><strong>Réglages</strong>
+    <button id="nav-settings" class="nav-btn" type="button" onclick="showPage('settings')">
+      <span>⚙️</span>Réglages
     </button>
   </nav>
 </div>
 
 <main>
 
-<!-- PAGE 0 : PORTAIL NEUTRE (AUCUN ÉTABLISSEMENT DÉVERROUILLÉ) -->
-<section id="page-portal" class="page">
-  <div class="portal-card">
-    <div class="portal-icon">🏫</div>
-    <h2 style="margin:0 0 6px;">Bienvenue sur l'application AS</h2>
-    <p style="color:var(--muted);font-size:14px;margin:0;">
-      Pour protéger les données de chaque collège, veuillez sélectionner votre établissement ou en créer un nouveau avec un code secret.
-    </p>
-
-    <div class="portal-tabs">
-      <button id="portal-tab-login" class="portal-tab-btn active" type="button" onclick="switchPortalView('login')">
-        🔑 Accéder à mon AS
-      </button>
-      <button id="portal-tab-register" class="portal-tab-btn" type="button" onclick="switchPortalView('register')">
-        ➕ Créer une nouvelle AS
-      </button>
-    </div>
-
-    <!-- VUE ACCÈS AVEC CODE -->
-    <div id="portal-view-login">
-      <div class="field" style="margin-bottom:12px;text-align:left;">
-        <label for="portal-school-select">Choisir l'établissement</label>
-        <select id="portal-school-select"></select>
-      </div>
-
-      <div class="field" style="margin-bottom:15px;text-align:left;">
-        <label for="portal-access-code">Code secret d'accès</label>
-        <input id="portal-access-code" type="password" placeholder="Entrez le code secret..." autocomplete="off">
-      </div>
-
-      <button class="save-button" type="button" onclick="unlockSelectedSchool()">
-        🔓 DÉVERROUILLER L'ACCÈS
-      </button>
-    </div>
-
-    <!-- VUE CRÉATION NOUVEL ÉTABLISSEMENT -->
-    <div id="portal-view-register" class="hidden">
-      <div class="field" style="margin-bottom:10px;text-align:left;">
-        <label for="reg-school-name">Nom de l'AS / Établissement</label>
-        <input id="reg-school-name" type="text" placeholder="Ex: AS Claudie Haigneré">
-      </div>
-
-      <div class="field" style="margin-bottom:10px;text-align:left;">
-        <label for="reg-school-city">Ville</label>
-        <input id="reg-school-city" type="text" placeholder="Ex: Rouillac">
-      </div>
-
-      <div class="field" style="margin-bottom:15px;text-align:left;">
-        <label for="reg-access-code">Définir un code secret d'accès</label>
-        <input id="reg-access-code" type="password" placeholder="Ex: 1234 ou eps2026" autocomplete="new-password">
-        <small style="color:var(--muted);font-size:11.5px;display:block;margin-top:4px;">
-          Ce code sera requis pour revenir sur cet établissement et protéger vos données.
-        </small>
-      </div>
-
-      <button class="save-button" type="button" onclick="createSchoolFromPortal()">
-        ✨ CRÉER ET ACCÉDER
-      </button>
-    </div>
-  </div>
-</section>
-
-<!-- PAGE 1 : ACCUEIL -->
-<section id="page-home" class="page">
-  <div class="page-title">
-    <h2>👋 Bienvenue !</h2>
-    <p>Gestion de l'Association Sportive</p>
-  </div>
-
+<!-- PAGE ACCUEIL -->
+<section id="page-home" class="page active">
   <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon">👥</div>
-      <span id="stat-students" class="stat-number">0</span>
-      <span class="stat-label">Élèves</span>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">📅</div>
-      <span id="stat-sessions" class="stat-number">0</span>
-      <span class="stat-label">Séances</span>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">✅</div>
-      <span id="stat-presences" class="stat-number">0</span>
-      <span class="stat-label">Présences</span>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">📈</div>
-      <span id="stat-rate" class="stat-number">0%</span>
-      <span class="stat-label">Assiduité</span>
-    </div>
-  </div>
-
-  <div class="quick-actions">
-    <button class="quick-action quick-blue" type="button" onclick="showPage('appel')">
-      <span style="font-size:26px;">📋</span><strong>Faire l'appel</strong><small>Pointer les présents</small>
-    </button>
-    <button class="quick-action quick-purple" type="button" onclick="showPage('bilan')">
-      <span style="font-size:26px;">📊</span><strong>Voir le bilan</strong><small>Suivre les présences</small>
-    </button>
-    <button class="quick-action quick-orange" type="button" onclick="openRosterModal()">
-      <span style="font-size:26px;">👥</span><strong>Gérer les élèves</strong><small>Ajouter / modifier</small>
-    </button>
+    <div class="stat-card"><span id="stat-students">0</span><small>Élèves</small></div>
+    <div class="stat-card"><span id="stat-sessions">0</span><small>Séances</small></div>
+    <div class="stat-card"><span id="stat-presences">0</span><small>Présences</small></div>
+    <div class="stat-card"><span id="stat-rate">0%</span><small>Assiduité</small></div>
   </div>
 
   <div class="card">
-    <h3 style="margin-top:0;">🏅 Élèves les plus assidus</h3>
+    <h3>🏃 Activités programmées</h3>
+    <div id="home-activities" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;"></div>
+  </div>
+
+  <div class="card">
+    <h3>🏅 Top Élèves Assidus</h3>
     <div id="top-students"></div>
   </div>
-
-  <div class="card">
-    <h3 style="margin-top:0;">🏃 Activités configurées</h3>
-    <div id="activity-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;"></div>
-  </div>
 </section>
 
-<!-- PAGE 2 : APPEL -->
+<!-- PAGE APPEL -->
 <section id="page-appel" class="page">
-  <div class="page-title">
-    <h2>📋 Appel</h2>
-    <p>Marquez les élèves présents à la séance.</p>
-  </div>
-
-  <div class="toolbar">
+  <div class="card">
     <div class="toolbar-grid">
       <div class="field">
-        <label for="appel-date">📅 Date</label>
+        <label for="appel-date">Date</label>
         <input id="appel-date" type="date" onchange="onDateChanged()">
-        <span id="day-sync-hint" class="day-hint-badge">Synchronisation créneau...</span>
+        <span id="day-hint" class="day-hint"></span>
       </div>
-
       <div class="field">
-        <label for="appel-group">👥 Groupe / Classe</label>
+        <label for="appel-group">Classe / Groupe</label>
         <select id="appel-group" onchange="renderAppel()"></select>
       </div>
-
       <div class="field">
-        <label for="appel-activity">🏃 Activité</label>
+        <label for="appel-activity">Activité</label>
         <select id="appel-activity" onchange="renderAppel()"></select>
       </div>
     </div>
 
-    <div class="save-buttons-row">
-      <button class="save-button" type="button" onclick="saveSession()">
-        💾 SAUVEGARDER L'APPEL
-      </button>
-      <button class="pdf-button" type="button" onclick="exportPresentPDF()">
-        📄 EXPORTER PDF PRÉSENTS
-      </button>
+    <div class="save-row">
+      <button class="btn-save" type="button" onclick="saveSession()">💾 SAUVEGARDER L'APPEL</button>
+      <button class="btn-pdf" type="button" onclick="exportPresentPDF()">📄 EXPORTER PDF PRÉSENTS</button>
     </div>
   </div>
 
   <div class="action-row">
-    <button class="secondary-button" type="button" onclick="setAllPresent()">✅ Tous présents</button>
-    <button class="secondary-button danger" type="button" onclick="clearCurrentSession()">❌ Tout effacer</button>
+    <button class="btn-sub" type="button" onclick="setAllPresent()">✅ Tous présents</button>
+    <button class="btn-sub danger" type="button" onclick="clearCurrentSession()">❌ Tout effacer</button>
   </div>
 
-  <div class="appel-info">
-    <div><strong>Présents</strong></div>
-    <div id="presence-counter" class="presence-counter">0 / 0</div>
+  <div class="status-bar">
+    <span>Présents</span>
+    <span id="presence-counter">0 / 0</span>
   </div>
 
-  <div id="students-list" class="students-list"></div>
+  <div id="students-list" class="student-list"></div>
 </section>
 
-<!-- PAGE 3 : BILAN -->
+<!-- PAGE BILAN -->
 <section id="page-bilan" class="page">
-  <div class="page-title">
-    <h2>📊 Bilan des présences</h2>
-    <p>Suivi individuel des élèves de l'AS.</p>
-  </div>
-
-  <div class="toolbar">
-    <div class="toolbar-grid" style="grid-template-columns:1fr 1fr;">
+  <div class="card">
+    <div class="toolbar-grid" style="grid-template-columns: 1fr 1fr;">
       <div class="field">
-        <label for="bilan-group">👥 Filtrer par classe</label>
+        <label for="bilan-group">Filtrer par classe</label>
         <select id="bilan-group" onchange="renderBilan()"></select>
       </div>
       <div class="field">
-        <label for="bilan-search">🔎 Rechercher un élève</label>
+        <label for="bilan-search">Rechercher</label>
         <input id="bilan-search" type="search" placeholder="Nom ou prénom..." oninput="renderBilan()">
       </div>
     </div>
   </div>
-
   <div id="bilan-list"></div>
 </section>
 
-<!-- PAGE 4 : RÉGLAGES -->
+<!-- PAGE REGLAGES -->
 <section id="page-settings" class="page">
-  <div class="page-title">
-    <h2>⚙️ Réglages de l'établissement</h2>
-    <p>Personnalisez l'identification, la sécurité et le planning des créneaux hebdomadaires.</p>
-  </div>
-
   <div class="card">
-    <h3 style="margin-top:0;">🏫 Identification & Sécurité</h3>
-    <div class="field" style="margin-bottom:12px;">
-      <label for="setting-school-name">Nom de l'Association Sportive</label>
-      <input id="setting-school-name" type="text" placeholder="Ex: AS Claudie Haigneré">
+    <h3>🏫 Identification & Sécurité</h3>
+    <div class="field" style="margin-bottom:10px;">
+      <label>Nom de l'AS</label>
+      <input id="set-name" type="text" placeholder="Ex: AS Claudie Haigneré">
     </div>
-    <div class="field" style="margin-bottom:12px;">
-      <label for="setting-school-city">Ville / Localisation</label>
-      <input id="setting-school-city" type="text" placeholder="Ex: Rouillac">
+    <div class="field" style="margin-bottom:10px;">
+      <label>Ville</label>
+      <input id="set-city" type="text" placeholder="Ex: Rouillac">
     </div>
-    <div class="field" style="margin-bottom:12px;">
-      <label for="setting-school-slogan">Slogan ou devise d'en-tête</label>
-      <input id="setting-school-slogan" type="text" placeholder="Ex: BOUGE • PARTICIPE • PROGRESSE">
-    </div>
-    <div class="field">
-      <label for="setting-school-code">Code secret d'accès à cette AS</label>
-      <input id="setting-school-code" type="password" placeholder="Code secret de déverrouillage">
+    <div class="field" style="margin-bottom:10px;">
+      <label>Code secret d'accès</label>
+      <input id="set-code" type="password" placeholder="Code secret de l'AS">
     </div>
   </div>
 
   <div class="card">
-    <h3 style="margin-top:0;">📅 Planning hebdomadaire des créneaux</h3>
-    <p style="font-size:13px;color:var(--muted);margin-top:0;margin-bottom:12px;">
-      Cochez les jours actifs et indiquez l'activité. L'appel sélectionnera automatiquement ce sport selon le jour de la séance.
-    </p>
-
-    <table class="schedule-table">
-      <tbody id="schedule-settings-tbody"></tbody>
-    </table>
-
-    <button class="save-button" style="margin-top:14px;" type="button" onclick="saveCurrentSchoolSettings()">
-      💾 ENREGISTRER LES RÉGLAGES
-    </button>
-  </div>
-
-  <div class="card">
-    <h3 style="margin-top:0;">🔒 Session & Établissement</h3>
-    <p style="font-size:13px;color:var(--muted);margin-top:0;margin-bottom:14px;">
-      Toutes vos données restent synchronisées sur Firebase Firestore. Vous pouvez changer d'établissement ou verrouiller l'écran.
-    </p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="secondary-button" style="flex:1;" type="button" onclick="lockOrSwitchSchool()">
-        🔒 Verrouiller / Changer d'AS
-      </button>
-      <button class="secondary-button danger" style="padding:0 15px;" type="button" onclick="deleteCurrentSchool()">
-        🗑️ Supprimer cette AS
-      </button>
-    </div>
+    <h3>📅 Planning des Créneaux Hebdomadaires</h3>
+    <div id="schedule-settings" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <button class="btn-save" style="width:100%;margin-top:12px;" type="button" onclick="saveSettings()">💾 ENREGISTRER LES RÉGLAGES</button>
   </div>
 </section>
 
 </main>
 
-<!-- MODAL ÉLÈVES -->
-<div id="roster-modal" class="modal-overlay" onclick="outsideModal(event)">
+<!-- MODAL ELEVES -->
+<div id="roster-modal" class="modal-overlay" onclick="outsideModal(event, 'roster-modal')">
   <div class="modal">
     <div class="modal-header">
-      <h2>👥 Gestion des élèves</h2>
-      <button class="close-button" type="button" onclick="closeRosterModal()">×</button>
+      <h3>👥 Gestion des élèves</h3>
+      <button class="btn-close" type="button" onclick="closeModal('roster-modal')">×</button>
     </div>
 
-    <h3 style="margin-top:0;">➕ Ajouter un élève</h3>
-    <div class="add-student-form">
-      <input id="new-lastname" type="text" placeholder="Nom">
-      <input id="new-firstname" type="text" placeholder="Prénom">
-      <input id="new-class" type="text" placeholder="Classe">
-      <button type="button" onclick="addStudent()">Ajouter</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr 80px auto;gap:6px;margin-bottom:12px;">
+      <input id="new-nom" type="text" placeholder="Nom">
+      <input id="new-prenom" type="text" placeholder="Prénom">
+      <input id="new-classe" type="text" placeholder="Classe">
+      <button style="background:#16a34a;color:#fff;padding:0 12px;border-radius:10px;font-weight:bold;" type="button" onclick="addStudent()">+</button>
     </div>
 
-    <h3>👤 Liste des élèves (<span id="roster-count">0</span>)</h3>
-    <div id="roster-list" class="roster-list"></div>
+    <div id="roster-list" style="display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
 
-    <div class="import-zone">
-      <strong>📥 Importer une liste CSV</strong>
-      <p style="font-size:12px;color:#718096;margin:4px 0 10px;">
-        Format Opuss / UNSS accepté (le numéro de licence est automatiquement ignoré).
-      </p>
-      <label for="csv-file">Choisir un fichier CSV</label>
-      <input id="csv-file" type="file" accept=".csv,text/csv" onchange="importCSV(event)">
+    <div style="margin-top:15px;padding:12px;border:2px dashed #cbd5e1;border-radius:12px;text-align:center;">
+      <label style="cursor:pointer;font-weight:bold;color:var(--primary);">
+        📥 Importer un fichier CSV (Licences ignorées)
+        <input type="file" accept=".csv,text/csv" style="display:none;" onchange="importCSV(event)">
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ETABLISSEMENTS -->
+<div id="schools-modal" class="modal-overlay" onclick="outsideModal(event, 'schools-modal')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🏫 Changer d'établissement</h3>
+      <button class="btn-close" type="button" onclick="closeModal('schools-modal')">×</button>
     </div>
 
-    <div class="export-buttons">
-      <button type="button" style="background:#dbeafe;color:#1d4ed8;" onclick="exportStudentsCSV()">
-        📤 Export élèves (.csv)
-      </button>
-      <button type="button" style="background:#dcfce7;color:#15803d;" onclick="exportSessionsCSV()">
-        📤 Export présences (.csv)
-      </button>
+    <div id="schools-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:15px;"></div>
+
+    <div style="border-top:1px solid var(--border);padding-top:12px;">
+      <h4 style="margin-bottom:8px;">➕ Nouveau profil</h4>
+      <input id="new-sc-name" type="text" placeholder="Nom de l'AS" style="margin-bottom:6px;">
+      <input id="new-sc-city" type="text" placeholder="Ville" style="margin-bottom:6px;">
+      <input id="new-sc-code" type="password" placeholder="Code secret d'accès" style="margin-bottom:10px;">
+      <button class="btn-save" style="width:100%;min-height:44px;" type="button" onclick="createSchool()">Créer et ouvrir</button>
     </div>
   </div>
 </div>
@@ -606,50 +295,9 @@ main { max-width: 1100px; margin: auto; padding: 18px 14px 40px; }
 <div id="toast" class="toast"></div>
 
 <script>
-/* =========================================================
-   CONFIGURATION FIREBASE CLOUD FIRESTORE
-========================================================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyCmV2E6dhnXPDNjjMkVQHI8IH2nXKQByvc",
-  authDomain: "appel-as.firebaseapp.com",
-  projectId: "appel-as",
-  storageBucket: "appel-as.firebasestorage.app",
-  messagingSenderId: "943879688117",
-  appId: "1:943879688117:web:0b4b35465d40cac4ff13fc"
-};
-
-const FIRESTORE_COLLECTION = "appelas";
-let db = null;
-
-try {
-  if (typeof firebase !== "undefined") {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-  }
-} catch (e) {
-  console.warn("Init Firebase:", e);
-}
-
-function updateCloudBadge(status) {
-  const badge = document.getElementById("cloud-badge");
-  if (!badge) return;
-  if (status === "synced") {
-    badge.className = "cloud-badge online";
-    badge.textContent = "☁️ Synchronisé";
-  } else if (status === "syncing") {
-    badge.className = "cloud-badge";
-    badge.textContent = "⏳ Envoi...";
-  } else {
-    badge.className = "cloud-badge offline";
-    badge.textContent = "🟠 Hors-ligne";
-  }
-}
-
-/* =========================================================
-   DONNÉES & CONSTANTES
-========================================================= */
-const ACTIVE_SCHOOL_KEY = "as_active_school_id_v2";
-const SCHOOLS_DB_KEY = "as_schools_db_v2";
+/* GESTION DES DONNEES */
+const DAYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+const DAY_NAMES = { lundi:"Lundi", mardi:"Mardi", mercredi:"Mercredi", jeudi:"Jeudi", vendredi:"Vendredi", samedi:"Samedi" };
 
 const DEFAULT_SCHEDULE = {
   lundi: { enabled: true, name: "Futsal", icon: "⚽" },
@@ -660,1076 +308,449 @@ const DEFAULT_SCHEDULE = {
   samedi: { enabled: false, name: "Plein Air", icon: "🌲" }
 };
 
-const DAY_LABELS = {
-  lundi: "Lundi",
-  mardi: "Mardi",
-  mercredi: "Mercredi",
-  jeudi: "Jeudi",
-  vendredi: "Vendredi",
-  samedi: "Samedi"
-};
-
-const EMOJI_OPTIONS = ["⚽", "🏀", "🏆", "🏸", "🤸", "🏐", "🤾", "🏓", "🏃", "🧗", "🏊", "🏹", "🌲", "🎯"];
-
-let schoolsDB = {};
-let currentSchoolId = null;
+let dbSchools = {};
+let currentId = "rouillac";
 let currentSchool = null;
-let roster = [];
-let sessions = [];
-let ACTIVITIES = {};
 
-/* =========================================================
-   SYNCHRONISATION FIRESTORE
-========================================================= */
-function syncSchoolToFirestore(school) {
-  if (!db || !school || !school.id) return;
-  updateCloudBadge("syncing");
-  db.collection(FIRESTORE_COLLECTION).doc(school.id).set(school)
-    .then(() => updateCloudBadge("synced"))
-    .catch(err => {
-      console.warn("Sync Firestore:", err);
-      updateCloudBadge("offline");
-    });
-}
-
-function deleteSchoolFromFirestore(schoolId) {
-  if (!db || !schoolId) return;
-  db.collection(FIRESTORE_COLLECTION).doc(schoolId).delete().catch(console.warn);
-}
-
-function listenFirestore() {
-  if (!db) { updateCloudBadge("offline"); return; }
+function loadStorage() {
   try {
-    db.collection(FIRESTORE_COLLECTION).onSnapshot(snap => {
-      let changed = false;
-      snap.forEach(doc => {
-        const data = doc.data();
-        if (data && data.id && data.id !== "init") {
-          schoolsDB[data.id] = data;
-          changed = true;
-        }
-      });
-      if (changed) {
-        saveSchoolsDB(false);
-        populatePortalSchoolSelect();
-        if (currentSchoolId && schoolsDB[currentSchoolId]) {
-          loadActiveSchool(currentSchoolId, false);
-          renderHome();
-          renderAppel();
-          renderBilan();
-        }
-      }
-      updateCloudBadge("synced");
-    }, err => {
-      console.warn("Écoute Firestore indisponible:", err);
-      updateCloudBadge("offline");
-    });
-  } catch(e) {
-    updateCloudBadge("offline");
-  }
-}
+    const raw = localStorage.getItem("as_schools_v3");
+    if (raw) dbSchools = JSON.parse(raw);
+  } catch (e) { dbSchools = {}; }
 
-/* =========================================================
-   BASE DE DONNÉES LOCALE
-========================================================= */
-function initDatabase() {
-  schoolsDB = loadJSON(SCHOOLS_DB_KEY, {});
-
-  // Profil initial
-  if (Object.keys(schoolsDB).length === 0) {
-    const oldRoster = loadJSON("as_roster_v3", []);
-    const oldSessions = loadJSON("as_sessions_v3", []);
-    schoolsDB["rouillac"] = {
+  if (!dbSchools["rouillac"]) {
+    let legacyRoster = [];
+    try { legacyRoster = JSON.parse(localStorage.getItem("as_roster_v3") || "[]"); } catch(e){}
+    dbSchools["rouillac"] = {
       id: "rouillac",
       name: "AS CLAUDIE HAIGNERÉ",
       city: "Rouillac",
-      slogan: "ROUILLAC • BOUGE • PARTICIPE • PROGRESSE",
       accessCode: "1234",
-      schedule: JSON.parse(JSON.stringify(DEFAULT_SCHEDULE)),
-      roster: oldRoster,
-      sessions: oldSessions
+      schedule: DEFAULT_SCHEDULE,
+      roster: legacyRoster,
+      sessions: []
     };
-    saveSchoolsDB(true);
+    saveStorage();
   }
 
-  // Vérification de la session active sur cet appareil
-  const savedActiveId = localStorage.getItem(ACTIVE_SCHOOL_KEY);
-  if (savedActiveId && schoolsDB[savedActiveId]) {
-    loadActiveSchool(savedActiveId, false);
-    showPage("home");
-  } else {
-    // Par défaut : affichage du portail neutre sans établissement
-    showPortal();
-  }
-
-  listenFirestore();
+  currentId = localStorage.getItem("as_current_id") || "rouillac";
+  if (!dbSchools[currentId]) currentId = Object.keys(dbSchools)[0];
+  currentSchool = dbSchools[currentId];
 }
 
-function loadActiveSchool(schoolId, shouldSync = false) {
-  if (!schoolsDB[schoolId]) return;
-  currentSchoolId = schoolId;
-  localStorage.setItem(ACTIVE_SCHOOL_KEY, schoolId);
-
-  currentSchool = schoolsDB[schoolId];
-  if (!currentSchool.schedule) {
-    currentSchool.schedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
-  }
-
-  roster = currentSchool.roster || [];
-  sessions = currentSchool.sessions || [];
-
-  buildActivitiesMap();
-  updateAppHeader();
-
-  document.getElementById("main-nav-bar").classList.remove("hidden");
-  document.getElementById("lock-btn").innerHTML = `🏫 <span>${escapeHTML(currentSchool.city || "AS")}</span>`;
-
-  if (shouldSync) syncSchoolToFirestore(currentSchool);
+function saveStorage() {
+  try {
+    localStorage.setItem("as_schools_v3", JSON.stringify(dbSchools));
+    localStorage.setItem("as_current_id", currentId);
+  } catch (e) {}
 }
 
-function buildActivitiesMap() {
-  ACTIVITIES = {};
-  const sched = currentSchool ? (currentSchool.schedule || {}) : {};
-  Object.keys(sched).forEach(dayKey => {
-    const item = sched[dayKey];
-    if (item && item.enabled && item.name && item.name.trim()) {
-      ACTIVITIES[dayKey] = {
-        name: item.name.trim(),
-        icon: item.icon || "🏃",
-        dayKey: dayKey
-      };
-    }
-  });
-}
-
-function updateAppHeader() {
-  if (currentSchool) {
-    const name = currentSchool.name || "ASSOCIATION SPORTIVE";
-    const city = currentSchool.city || "";
-    const slogan = currentSchool.slogan || "BOUGE • PARTICIPE • PROGRESSE";
-    document.getElementById("app-school-name").textContent = name.toUpperCase();
-    document.getElementById("app-school-sub").textContent = city ? `${city.toUpperCase()} • ${slogan}` : slogan;
-    document.getElementById("html-title").textContent = `${name} - Appel & Présences`;
-  } else {
-    document.getElementById("app-school-name").textContent = "AS GESTION";
-    document.getElementById("app-school-sub").textContent = "APPEL • SUIVI • MULTI-ÉTABLISSEMENTS";
-    document.getElementById("html-title").textContent = "AS Gestion - Appel & Présences";
-    document.getElementById("lock-btn").innerHTML = "🏫 <span>Établissements</span>";
-  }
-}
-
-function saveSchoolsDB(syncToCloud = true) {
-  localStorage.setItem(SCHOOLS_DB_KEY, JSON.stringify(schoolsDB));
-  if (syncToCloud && currentSchool) {
-    syncSchoolToFirestore(currentSchool);
-  }
-}
-
-function saveCurrentSchoolData() {
-  if (!currentSchool) return;
-  currentSchool.roster = roster;
-  currentSchool.sessions = sessions;
-  schoolsDB[currentSchoolId] = currentSchool;
-  saveSchoolsDB(true);
-}
-
-/* =========================================================
-   PORTAIL NEUTRE & GESTION DU CODE SECRET
-========================================================= */
-function showPortal() {
-  currentSchoolId = null;
-  currentSchool = null;
-  localStorage.removeItem(ACTIVE_SCHOOL_KEY);
-
-  updateAppHeader();
-  document.getElementById("main-nav-bar").classList.add("hidden");
-
+/* NAVIGATION */
+function showPage(page) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.getElementById("page-portal").classList.add("active");
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
 
-  populatePortalSchoolSelect();
-  switchPortalView("login");
+  const target = document.getElementById("page-" + page);
+  const btn = document.getElementById("nav-" + page);
+  if (target) target.classList.add("active");
+  if (btn) btn.classList.add("active");
+
+  if (page === "home") renderHome();
+  if (page === "appel") {
+    if (!document.getElementById("appel-date").value) {
+      const now = new Date();
+      document.getElementById("appel-date").value = now.toISOString().split("T")[0];
+    }
+    onDateChanged();
+  }
+  if (page === "bilan") renderBilan();
+  if (page === "settings") renderSettings();
 }
 
-function populatePortalSchoolSelect() {
-  const sel = document.getElementById("portal-school-select");
-  if (!sel) return;
-  sel.innerHTML = "";
-  const list = Object.values(schoolsDB);
-
-  if (list.length === 0) {
-    sel.innerHTML = `<option value="">Aucun établissement enregistré</option>`;
-    return;
-  }
-
-  list.forEach(s => {
-    const opt = document.createElement("option");
-    opt.value = s.id;
-    opt.textContent = `${s.name} (${s.city || "Ville non précisée"})`;
-    sel.appendChild(opt);
-  });
-}
-
-function switchPortalView(view) {
-  const isLogin = view === "login";
-  document.getElementById("portal-tab-login").classList.toggle("active", isLogin);
-  document.getElementById("portal-tab-register").classList.toggle("active", !isLogin);
-  document.getElementById("portal-view-login").classList.toggle("hidden", !isLogin);
-  document.getElementById("portal-view-register").classList.toggle("hidden", isLogin);
-}
-
-function unlockSelectedSchool() {
-  const schoolId = document.getElementById("portal-school-select").value;
-  const enteredCode = document.getElementById("portal-access-code").value.trim();
-
-  if (!schoolId || !schoolsDB[schoolId]) {
-    showToast("Veuillez sélectionner un établissement.");
-    return;
-  }
-
-  const school = schoolsDB[schoolId];
-  const expectedCode = school.accessCode ? String(school.accessCode).trim() : "";
-
-  if (!expectedCode || enteredCode === expectedCode) {
-    document.getElementById("portal-access-code").value = "";
-    loadActiveSchool(schoolId, false);
-    showPage("home");
-    showToast(`Bienvenue à ${school.name} ! 🔓`);
-  } else {
-    alert("❌ Code secret incorrect. Accès refusé aux données de cet établissement.");
-  }
-}
-
-function createSchoolFromPortal() {
-  const name = document.getElementById("reg-school-name").value.trim();
-  const city = document.getElementById("reg-school-city").value.trim();
-  const code = document.getElementById("reg-access-code").value.trim();
-
-  if (!name) {
-    showToast("Indiquez le nom de l'établissement.");
-    return;
-  }
-  if (!code) {
-    showToast("Veuillez définir un code secret de sécurité.");
-    return;
-  }
-
-  const newId = "school_" + uid();
-  const newSchool = {
-    id: newId,
-    name: name,
-    city: city,
-    slogan: "BOUGE • PARTICIPE • PROGRESSE",
-    accessCode: code,
-    schedule: JSON.parse(JSON.stringify(DEFAULT_SCHEDULE)),
-    roster: [],
-    sessions: []
-  };
-
-  schoolsDB[newId] = newSchool;
-  saveSchoolsDB(true);
-
-  document.getElementById("reg-school-name").value = "";
-  document.getElementById("reg-school-city").value = "";
-  document.getElementById("reg-access-code").value = "";
-
-  loadActiveSchool(newId, true);
-  showPage("home");
-  showToast(`Établissement ${name} créé avec succès ! ✨`);
-}
-
-function lockOrSwitchSchool() {
-  if (confirm("Voulez-vous verrouiller la session et changer d'établissement ?")) {
-    showPortal();
-  }
-}
-
-function deleteCurrentSchool() {
-  if (!currentSchool) return;
-  const count = Object.keys(schoolsDB).length;
-  if (count <= 1) {
-    alert("Impossible de supprimer le seul établissement existant.");
-    return;
-  }
-
-  const code = prompt(`Confirmez le code secret pour supprimer définitivement "${currentSchool.name}" :`);
-  if (code !== currentSchool.accessCode) {
-    alert("Code secret incorrect. Suppression annulée.");
-    return;
-  }
-
-  const toDel = currentSchoolId;
-  delete schoolsDB[toDel];
-  deleteSchoolFromFirestore(toDel);
-  saveSchoolsDB(false);
-
-  showToast("Établissement supprimé");
-  showPortal();
-}
-
-/* =========================================================
-   SYNCHRONISATION CALENDRIER ↔ CRÉNEAUX RÉGLAGES
-========================================================= */
-function dayKeyFromDate(dateString) {
-  if (!dateString) return null;
-  const date = new Date(dateString + "T12:00:00");
-  const day = date.getDay();
-  const map = { 1: "lundi", 2: "mardi", 3: "mercredi", 4: "jeudi", 5: "vendredi", 6: "samedi" };
-  return map[day] || null;
-}
-
-function renderActivitySelect() {
-  const select = document.getElementById("appel-activity");
-  select.innerHTML = "";
-
-  const keys = Object.keys(ACTIVITIES);
-  if (keys.length === 0) {
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = "Aucune activité (voir Réglages)";
-    select.appendChild(opt);
-    return;
-  }
-
-  keys.forEach(k => {
-    const act = ACTIVITIES[k];
-    const opt = document.createElement("option");
-    opt.value = k;
-    opt.textContent = `${act.icon} ${act.name} (${DAY_LABELS[k] || k})`;
-    select.appendChild(opt);
-  });
-}
-
-function onDateChanged() {
-  const dateVal = document.getElementById("appel-date").value;
-  const dayKey = dayKeyFromDate(dateVal);
-  const hintEl = document.getElementById("day-sync-hint");
-
-  renderActivitySelect();
-
-  if (dayKey && ACTIVITIES[dayKey]) {
-    document.getElementById("appel-activity").value = dayKey;
-    hintEl.textContent = `📅 Créneau du ${DAY_LABELS[dayKey]} : ${ACTIVITIES[dayKey].name}`;
-    hintEl.style.display = "inline-block";
-  } else if (dayKey) {
-    hintEl.textContent = `⚠️ Aucun créneau actif configuré pour le ${DAY_LABELS[dayKey]}`;
-    hintEl.style.display = "inline-block";
-  } else {
-    hintEl.style.display = "none";
-  }
-
-  renderAppel();
-}
-
-/* =========================================================
-   APPEL & NETTOYAGE STRICT NOM / PRÉNOM
-========================================================= */
-function displayName(student) {
-  let nom = String(student.lastname || "").trim();
-  let prenom = String(student.firstname || "").trim();
-
-  // Si le champ nom est un numéro de licence (composé uniquement de chiffres), on l'exclut !
-  if (/^[0-9]+$/.test(nom)) {
-    nom = "";
-  }
+/* GESTION NOM ET LICENCE */
+function cleanName(st) {
+  let nom = String(st.lastname || "").trim();
+  let prenom = String(st.firstname || "").trim();
+  if (/^[0-9]+$/.test(nom)) nom = "";
   return (nom.toUpperCase() + " " + prenom).trim();
 }
 
-function initials(student) {
-  let nom = String(student.lastname || "").trim();
-  let prenom = String(student.firstname || "").trim();
-  if (/^[0-9]+$/.test(nom)) nom = "";
+/* SYNCHRONISATION DATE ↔ CRENEAUX */
+function onDateChanged() {
+  const dVal = document.getElementById("appel-date").value;
+  const hint = document.getElementById("day-hint");
+  const actSelect = document.getElementById("appel-activity");
 
-  const f = prenom ? prenom.charAt(0) : "";
-  const l = nom ? nom.charAt(0) : "";
-  return (l + f).toUpperCase() || "É";
+  actSelect.innerHTML = "";
+  const sched = currentSchool.schedule || DEFAULT_SCHEDULE;
+
+  DAYS.forEach(k => {
+    const item = sched[k];
+    if (item && item.enabled && item.name) {
+      const opt = document.createElement("option");
+      opt.value = k;
+      opt.textContent = `${item.icon || "🏃"} ${item.name} (${DAY_NAMES[k]})`;
+      actSelect.appendChild(opt);
+    }
+  });
+
+  if (!dVal) return;
+  const dayIdx = new Date(dVal + "T12:00:00").getDay();
+  const map = { 1:"lundi", 2:"mardi", 3:"mercredi", 4:"jeudi", 5:"vendredi", 6:"samedi" };
+  const dKey = map[dayIdx];
+
+  if (dKey && sched[dKey] && sched[dKey].enabled) {
+    actSelect.value = dKey;
+    hint.textContent = `📅 Créneau du ${DAY_NAMES[dKey]} : ${sched[dKey].name}`;
+  } else {
+    hint.textContent = `⚠️ Aucun créneau défini pour ce jour`;
+  }
+  renderAppel();
 }
 
-function getCurrentSession() {
-  const date = document.getElementById("appel-date").value;
-  const group = document.getElementById("appel-group").value;
-  const activity = document.getElementById("appel-activity").value;
-  return sessions.find(s => s.date === date && s.group === group && s.activity === activity);
-}
-
+/* GESTION APPEL */
 function renderAppel() {
-  if (!currentSchool) return;
+  const grpSelect = document.getElementById("appel-group");
+  const listEl = document.getElementById("students-list");
+  const prevGrp = grpSelect.value;
 
-  const dateInput = document.getElementById("appel-date");
-  if (!dateInput.value) dateInput.value = todayISO();
+  const classes = Array.from(new Set(currentSchool.roster.map(s => s.class).filter(Boolean))).sort();
+  grpSelect.innerHTML = `<option value="">Toutes les classes</option>`;
+  classes.forEach(c => {
+    grpSelect.innerHTML += `<option value="${c}" ${prevGrp === c ? "selected" : ""}>${c}</option>`;
+  });
 
-  renderGroupSelects();
+  const curGrp = grpSelect.value;
+  const curDate = document.getElementById("appel-date").value;
+  const curAct = document.getElementById("appel-activity").value;
 
-  const group = document.getElementById("appel-group").value;
-  const list = document.getElementById("students-list");
+  let session = (currentSchool.sessions || []).find(s => s.date === curDate && s.activity === curAct && s.group === curGrp);
+  const presents = session ? session.presenceIds || [] : [];
 
-  let students = [...roster].sort((a, b) => displayName(a).localeCompare(displayName(b), "fr"));
-  if (group) students = students.filter(s => s.class === group);
+  let students = [...currentSchool.roster].sort((a,b) => cleanName(a).localeCompare(cleanName(b)));
+  if (curGrp) students = students.filter(s => s.class === curGrp);
 
-  const session = getCurrentSession();
-  const presenceIds = session?.presenceIds || [];
-
-  document.getElementById("presence-counter").textContent = `${presenceIds.length} / ${students.length}`;
+  document.getElementById("presence-counter").textContent = `${presents.length} / ${students.length}`;
 
   if (!students.length) {
-    list.innerHTML = `
-      <div class="card empty">
-        <div class="empty-icon">👥</div>
-        <strong>Aucun élève trouvé</strong>
-        <p>Ajoutez des élèves via l'onglet Élèves ou importez un CSV.</p>
-      </div>
-    `;
+    listEl.innerHTML = `<p style="text-align:center;padding:20px;color:#94a3b8;">Aucun élève enregistré.</p>`;
     return;
   }
 
-  list.innerHTML = students.map(student => {
-    const present = presenceIds.includes(student.id);
+  listEl.innerHTML = students.map(st => {
+    const isP = presents.includes(st.id);
     return `
       <div class="student-row">
-        <div class="student-avatar">${escapeHTML(initials(student))}</div>
-        <div class="student-info">
-          <div class="student-name">${escapeHTML(displayName(student))}</div>
-          <div class="student-class">${escapeHTML(student.class || "")}</div>
+        <div class="st-info">
+          <strong>${cleanName(st)}</strong>
+          <small>${st.class || ""}</small>
         </div>
-        <button class="presence-button ${present ? "present" : ""}" type="button" onclick="togglePresence('${student.id}')">
-          ${present ? "✓" : "P"}
+        <button class="btn-p ${isP ? 'present' : ''}" type="button" onclick="togglePresence('${st.id}')">
+          ${isP ? '✓' : 'P'}
         </button>
       </div>
     `;
   }).join("");
 }
 
-function togglePresence(studentId) {
-  const date = document.getElementById("appel-date").value;
-  const group = document.getElementById("appel-group").value;
-  const activity = document.getElementById("appel-activity").value;
+function togglePresence(id) {
+  const curDate = document.getElementById("appel-date").value;
+  const curAct = document.getElementById("appel-activity").value;
+  const curGrp = document.getElementById("appel-group").value;
 
-  let session = sessions.find(s => s.date === date && s.group === group && s.activity === activity);
-  if (!session) {
-    session = { id: uid(), date, group, activity, presenceIds: [] };
-    sessions.push(session);
+  if (!currentSchool.sessions) currentSchool.sessions = [];
+  let s = currentSchool.sessions.find(x => x.date === curDate && x.activity === curAct && x.group === curGrp);
+  if (!s) {
+    s = { date: curDate, activity: curAct, group: curGrp, presenceIds: [] };
+    currentSchool.sessions.push(s);
   }
-  if (!session.presenceIds) session.presenceIds = [];
 
-  const idx = session.presenceIds.indexOf(studentId);
-  if (idx >= 0) session.presenceIds.splice(idx, 1);
-  else session.presenceIds.push(studentId);
+  const idx = s.presenceIds.indexOf(id);
+  if (idx >= 0) s.presenceIds.splice(idx, 1);
+  else s.presenceIds.push(id);
 
-  saveCurrentSchoolData();
+  saveStorage();
   renderAppel();
 }
 
 function setAllPresent() {
-  const date = document.getElementById("appel-date").value;
-  const group = document.getElementById("appel-group").value;
-  const activity = document.getElementById("appel-activity").value;
+  const curDate = document.getElementById("appel-date").value;
+  const curAct = document.getElementById("appel-activity").value;
+  const curGrp = document.getElementById("appel-group").value;
 
-  const students = roster.filter(s => !group || s.class === group);
-  let session = sessions.find(s => s.date === date && s.group === group && s.activity === activity);
-  if (!session) {
-    session = { id: uid(), date, group, activity, presenceIds: [] };
-    sessions.push(session);
+  let s = currentSchool.sessions.find(x => x.date === curDate && x.activity === curAct && x.group === curGrp);
+  if (!s) {
+    s = { date: curDate, activity: curAct, group: curGrp, presenceIds: [] };
+    currentSchool.sessions.push(s);
   }
 
-  session.presenceIds = students.map(s => s.id);
-  saveCurrentSchoolData();
+  let students = currentSchool.roster;
+  if (curGrp) students = students.filter(x => x.class === curGrp);
+  s.presenceIds = students.map(x => x.id);
+
+  saveStorage();
   renderAppel();
-  showToast("Tous les élèves sont présents ✅");
 }
 
 function clearCurrentSession() {
-  const date = document.getElementById("appel-date").value;
-  const group = document.getElementById("appel-group").value;
-  const activity = document.getElementById("appel-activity").value;
+  const curDate = document.getElementById("appel-date").value;
+  const curAct = document.getElementById("appel-activity").value;
+  const curGrp = document.getElementById("appel-group").value;
 
-  const session = sessions.find(s => s.date === date && s.group === group && s.activity === activity);
-  if (session) session.presenceIds = [];
+  let s = currentSchool.sessions.find(x => x.date === curDate && x.activity === curAct && x.group === curGrp);
+  if (s) s.presenceIds = [];
 
-  saveCurrentSchoolData();
+  saveStorage();
   renderAppel();
-  showToast("Appel effacé");
 }
 
 function saveSession() {
-  const date = document.getElementById("appel-date").value;
-  const group = document.getElementById("appel-group").value;
-  const activity = document.getElementById("appel-activity").value;
-
-  if (!date) { showToast("Choisissez une date."); return; }
-
-  let session = sessions.find(s => s.date === date && s.group === group && s.activity === activity);
-  if (!session) {
-    session = { id: uid(), date, group, activity, presenceIds: [] };
-    sessions.push(session);
-  }
-
-  saveCurrentSchoolData();
+  saveStorage();
   showToast("Appel sauvegardé 💾");
   renderHome();
 }
 
-/* =========================================================
-   EXPORT PDF DES PRÉSENTS (NOM & PRÉNOM UNIQUEMENT)
-========================================================= */
+/* EXPORT PDF */
 function exportPresentPDF() {
-  const session = getCurrentSession();
-  const presenceIds = session && session.presenceIds ? session.presenceIds : [];
+  const curDate = document.getElementById("appel-date").value;
+  const curAct = document.getElementById("appel-activity").value;
+  const curGrp = document.getElementById("appel-group").value;
 
-  if (presenceIds.length === 0) {
-    showToast("Aucun élève présent à exporter !");
-    return;
-  }
+  const s = (currentSchool.sessions || []).find(x => x.date === curDate && x.activity === curAct && x.group === curGrp);
+  const pIds = s ? s.presenceIds || [] : [];
+  if (!pIds.length) { showToast("Aucun présent à exporter"); return; }
 
-  const presentStudents = roster.filter(student => presenceIds.includes(student.id));
+  const presentSt = currentSchool.roster.filter(x => pIds.includes(x.id)).sort((a,b) => cleanName(a).localeCompare(cleanName(b)));
 
-  presentStudents.sort((a, b) => {
-    const na = displayName(a);
-    const nb = displayName(b);
-    return na.localeCompare(nb, "fr", { sensitivity: "base" });
-  });
-
-  const dateVal = document.getElementById("appel-date").value;
-  const dateStr = formatDate(dateVal);
-  const groupVal = document.getElementById("appel-group").value || "Toutes les classes";
-  const activityKey = document.getElementById("appel-activity").value;
-  const activityName = (ACTIVITIES[activityKey] && ACTIVITIES[activityKey].name) ? ACTIVITIES[activityKey].name : (activityKey || "Séance");
-
-  if (!window.jspdf || !window.jspdf.jsPDF) {
-    alert("Erreur de chargement du module PDF. Vérifiez votre connexion.");
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 20;
-  let y = 20;
-
-  const schoolTitle = (currentSchool.name || "ASSOCIATION SPORTIVE").toUpperCase() + (currentSchool.city ? ` - ${currentSchool.city.toUpperCase()}` : "");
+  if (!window.jspdf) { alert("Module PDF non disponible"); return; }
+  const doc = new window.jspdf.jsPDF();
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
   doc.setTextColor(29, 78, 216);
-  doc.text(schoolTitle, margin, y);
+  doc.text((currentSchool.name || "AS").toUpperCase(), 15, 20);
 
-  y += 7;
-  doc.setFontSize(13);
+  doc.setFontSize(12);
   doc.setTextColor(30, 41, 59);
-  doc.text("Feuille d'appel - Liste des présents", margin, y);
+  doc.text(`Liste d'appel des présents - ${curDate}`, 15, 28);
+  doc.text(`Nombre de présents : ${presentSt.length}`, 15, 35);
 
-  y += 5;
-  doc.setDrawColor(203, 213, 225);
-  doc.setLineWidth(0.5);
-  doc.line(margin, y, pageWidth - margin, y);
-
-  y += 9;
-  doc.setFont("helvetica", "normal");
+  let y = 45;
   doc.setFontSize(10);
-  doc.setTextColor(71, 85, 105);
-  doc.text(`Date : ${dateStr}   |   Activité : ${activityName}   |   Groupe : ${groupVal}`, margin, y);
-
-  y += 6;
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(22, 163, 74);
-  doc.text(`Nombre de présents : ${presentStudents.length}`, margin, y);
-
-  y += 8;
-  doc.setDrawColor(226, 232, 240);
-  doc.setFillColor(241, 245, 249);
-  doc.rect(margin, y, pageWidth - 2 * margin, 8, "FD");
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.setTextColor(51, 65, 85);
-  doc.text("N°", margin + 4, y + 5.5);
-  doc.text("NOM", margin + 22, y + 5.5);
-  doc.text("PRÉNOM", margin + 105, y + 5.5);
-
-  y += 8;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(15, 23, 42);
-
-  presentStudents.forEach((st, idx) => {
-    if (y > 270) {
-      doc.addPage();
-      y = 20;
-      doc.setFillColor(241, 245, 249);
-      doc.rect(margin, y, pageWidth - 2 * margin, 8, "FD");
-      doc.setFont("helvetica", "bold");
-      doc.text("N°", margin + 4, y + 5.5);
-      doc.text("NOM", margin + 22, y + 5.5);
-      doc.text("PRÉNOM", margin + 105, y + 5.5);
-      y += 8;
-      doc.setFont("helvetica", "normal");
-    }
-
-    if (idx % 2 === 1) {
-      doc.setFillColor(248, 250, 252);
-      doc.rect(margin, y, pageWidth - 2 * margin, 7, "F");
-    }
-
-    let cleanNom = String(st.lastname || "").trim();
-    if (/^[0-9]+$/.test(cleanNom)) cleanNom = "";
-
-    doc.text(String(idx + 1), margin + 4, y + 5);
-    doc.text(cleanNom.toUpperCase(), margin + 22, y + 5);
-    doc.text(String(st.firstname || "").trim(), margin + 105, y + 5);
-
-    doc.setDrawColor(241, 245, 249);
-    doc.line(margin, y + 7, pageWidth - margin, y + 7);
+  presentSt.forEach((st, i) => {
+    if (y > 275) { doc.addPage(); y = 20; }
+    let nom = String(st.lastname || "").trim();
+    if (/^[0-9]+$/.test(nom)) nom = "";
+    doc.text(`${i+1}. ${nom.toUpperCase()} ${st.firstname || ""}`, 15, y);
     y += 7;
   });
 
-  const cleanDate = dateVal || "appel";
-  doc.save(`presents_${currentSchool.city || "AS"}_${cleanDate}.pdf`);
-  showToast("Export PDF généré avec succès 📄");
+  doc.save(`presents_${curDate}.pdf`);
+  showToast("PDF téléchargé 📄");
 }
 
-/* =========================================================
-   BILAN
-========================================================= */
+/* BILAN */
 function renderBilan() {
-  if (!currentSchool) return;
-  renderGroupSelects();
-
-  const container = document.getElementById("bilan-list");
-  const group = document.getElementById("bilan-group").value;
+  const grp = document.getElementById("bilan-group").value;
   const search = (document.getElementById("bilan-search").value || "").toLowerCase();
+  const list = document.getElementById("bilan-list");
 
-  let students = [...roster].sort((a, b) => displayName(a).localeCompare(displayName(b), "fr"));
-  if (group) students = students.filter(s => s.class === group);
-  if (search) students = students.filter(s => displayName(s).toLowerCase().includes(search));
+  let students = [...currentSchool.roster].sort((a,b) => cleanName(a).localeCompare(cleanName(b)));
+  if (grp) students = students.filter(s => s.class === grp);
+  if (search) students = students.filter(s => cleanName(s).toLowerCase().includes(search));
 
-  if (!students.length) {
-    container.innerHTML = `<div class="card empty"><div class="empty-icon">📊</div>Aucun élève trouvé.</div>`;
-    return;
-  }
-
-  container.innerHTML = students.map(st => {
-    const total = getStudentPresenceCount(st.id);
+  list.innerHTML = students.map(st => {
+    let count = 0;
+    (currentSchool.sessions || []).forEach(sess => {
+      if ((sess.presenceIds || []).includes(st.id)) count++;
+    });
     return `
-      <div class="bilan-student">
-        <div class="bilan-header">
-          <div class="student-avatar">${escapeHTML(initials(st))}</div>
-          <div class="bilan-name">
-            <strong>${escapeHTML(displayName(st))}</strong>
-            <small>${escapeHTML(st.class || "")}</small>
-          </div>
-          <div class="total-presence">
-            ${total} <small>présence${total > 1 ? "s" : ""}</small>
-          </div>
-        </div>
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:12px;margin-bottom:8px;">
+        <div><strong>${cleanName(st)}</strong><small style="color:#64748b;">${st.class || ""}</small></div>
+        <div style="background:#dcfce7;color:#15803d;padding:6px 12px;border-radius:10px;font-weight:bold;">${count} présence(s)</div>
       </div>
     `;
   }).join("");
 }
 
-/* =========================================================
-   STATISTIQUES & ACCUEIL
-========================================================= */
-function getStats() {
-  let totalPresences = 0;
-  sessions.forEach(s => { if (s.presenceIds) totalPresences += s.presenceIds.length; });
-  const totalPossible = sessions.reduce((tot, s) => tot + roster.filter(st => !s.group || st.class === s.group).length, 0);
-  const rate = totalPossible > 0 ? Math.round((totalPresences / totalPossible) * 100) : 0;
-  return { students: roster.length, sessions: sessions.length, presences: totalPresences, rate };
-}
-
-function getStudentPresenceCount(studentId) {
-  let c = 0;
-  sessions.forEach(s => { if (s.presenceIds && s.presenceIds.includes(studentId)) c++; });
-  return c;
-}
-
+/* ACCUEIL */
 function renderHome() {
-  if (!currentSchool) return;
-  const s = getStats();
-  document.getElementById("stat-students").textContent = s.students;
-  document.getElementById("stat-sessions").textContent = s.sessions;
-  document.getElementById("stat-presences").textContent = s.presences;
-  document.getElementById("stat-rate").textContent = s.rate + "%";
+  document.getElementById("app-school-name").textContent = currentSchool.name || "AS";
+  document.getElementById("app-school-sub").textContent = currentSchool.city || "";
 
-  const topCont = document.getElementById("top-students");
-  const top = roster.map(st => ({ student: st, count: getStudentPresenceCount(st.id) }))
-    .sort((a, b) => b.count - a.count).slice(0, 5);
+  document.getElementById("stat-students").textContent = currentSchool.roster.length;
+  document.getElementById("stat-sessions").textContent = (currentSchool.sessions || []).length;
 
-  if (!top.length) {
-    topCont.innerHTML = `<div class="empty"><div class="empty-icon">🏃</div>Aucun élève enregistré.</div>`;
-  } else {
-    topCont.innerHTML = top.map((item, idx) => `
-      <div class="student-row" style="margin-bottom:6px;">
-        <div class="student-avatar" style="background:linear-gradient(135deg, ${idx===0?"#f59e0b":idx===1?"#94a3b8":idx===2?"#b45309":"#2563eb"}, #7c3aed);">
-          ${idx + 1}
-        </div>
-        <div class="student-info">
-          <div class="student-name">${escapeHTML(displayName(item.student))}</div>
-          <div class="student-class">${escapeHTML(item.student.class || "")}</div>
-        </div>
-        <div class="total-presence">${item.count} présence${item.count > 1 ? "s" : ""}</div>
-      </div>
-    `).join("");
-  }
+  let totalP = 0;
+  (currentSchool.sessions || []).forEach(s => totalP += (s.presenceIds || []).length);
+  document.getElementById("stat-presences").textContent = totalP;
 
-  const actCont = document.getElementById("activity-cards");
-  const keys = Object.keys(ACTIVITIES);
-  if (!keys.length) {
-    actCont.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:13px;">Aucun créneau configuré. Rendez-vous dans Réglages.</p>`;
-  } else {
-    actCont.innerHTML = keys.map(k => {
-      const act = ACTIVITIES[k];
-      const count = sessions.filter(s => s.activity === k).length;
-      return `
-        <div style="background:#f1f5f9;border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;">
-          <span style="font-size:26px;display:block;margin-bottom:4px;">${act.icon}</span>
-          <span style="font-size:13px;font-weight:bold;">${escapeHTML(act.name)}</span>
-          <span style="display:block;font-size:18px;font-weight:900;margin-top:3px;">${count}</span>
-        </div>
-      `;
-    }).join("");
-  }
+  const actCont = document.getElementById("home-activities");
+  const sched = currentSchool.schedule || DEFAULT_SCHEDULE;
+  actCont.innerHTML = DAYS.filter(k => sched[k]?.enabled).map(k => `
+    <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:8px;text-align:center;">
+      <span style="font-size:20px;">${sched[k].icon}</span>
+      <strong style="display:block;font-size:12px;">${sched[k].name}</strong>
+      <small style="color:var(--muted);">${DAY_NAMES[k]}</small>
+    </div>
+  `).join("");
 }
 
-/* =========================================================
-   PAGE RÉGLAGES
-========================================================= */
-function renderSettingsPage() {
-  if (!currentSchool) return;
+/* REGLAGES */
+function renderSettings() {
+  document.getElementById("set-name").value = currentSchool.name || "";
+  document.getElementById("set-city").value = currentSchool.city || "";
+  document.getElementById("set-code").value = currentSchool.accessCode || "";
 
-  document.getElementById("setting-school-name").value = currentSchool.name || "";
-  document.getElementById("setting-school-city").value = currentSchool.city || "";
-  document.getElementById("setting-school-slogan").value = currentSchool.slogan || "";
-  document.getElementById("setting-school-code").value = currentSchool.accessCode || "";
-
-  const tbody = document.getElementById("schedule-settings-tbody");
-  tbody.innerHTML = "";
+  const cont = document.getElementById("schedule-settings");
   const sched = currentSchool.schedule || DEFAULT_SCHEDULE;
 
-  ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"].forEach(k => {
+  cont.innerHTML = DAYS.map(k => {
     const item = sched[k] || { enabled: false, name: "", icon: "⚽" };
-    const tr = document.createElement("tr");
-    tr.className = "schedule-row";
-    tr.innerHTML = `
-      <td><input type="checkbox" class="switch-checkbox" id="sched-check-${k}" ${item.enabled ? "checked" : ""}></td>
-      <td><span class="day-badge">${DAY_LABELS[k]}</span></td>
-      <td><input type="text" class="slot-input" id="sched-name-${k}" placeholder="Activité enseignée (ex: Futsal, Badminton...)" value="${escapeHTML(item.name || "")}"></td>
-      <td style="width:70px;">
-        <select class="slot-icon-select" id="sched-icon-${k}">
-          ${EMOJI_OPTIONS.map(e => `<option value="${e}" ${item.icon === e ? "selected" : ""}>${e}</option>`).join("")}
-        </select>
-      </td>
+    return `
+      <div style="display:grid;grid-template-columns:30px 80px 1fr;gap:6px;align-items:center;background:#f8fafc;padding:6px 10px;border-radius:10px;">
+        <input type="checkbox" id="sc-${k}" ${item.enabled ? 'checked' : ''}>
+        <strong>${DAY_NAMES[k]}</strong>
+        <input type="text" id="sn-${k}" value="${item.name || ''}" placeholder="Activité">
+      </div>
     `;
-    tbody.appendChild(tr);
-  });
+  }).join("");
 }
 
-function saveCurrentSchoolSettings() {
-  if (!currentSchool) return;
-
-  const name = document.getElementById("setting-school-name").value.trim() || "ASSOCIATION SPORTIVE";
-  const city = document.getElementById("setting-school-city").value.trim();
-  const slogan = document.getElementById("setting-school-slogan").value.trim() || "BOUGE • PARTICIPE • PROGRESSE";
-  const code = document.getElementById("setting-school-code").value.trim();
-
-  currentSchool.name = name;
-  currentSchool.city = city;
-  currentSchool.slogan = slogan;
-  if (code) currentSchool.accessCode = code;
+function saveSettings() {
+  currentSchool.name = document.getElementById("set-name").value.trim() || "AS";
+  currentSchool.city = document.getElementById("set-city").value.trim();
+  currentSchool.accessCode = document.getElementById("set-code").value.trim();
 
   const sched = {};
-  ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"].forEach(k => {
+  DAYS.forEach(k => {
     sched[k] = {
-      enabled: document.getElementById(`sched-check-${k}`).checked,
-      name: document.getElementById(`sched-name-${k}`).value.trim(),
-      icon: document.getElementById(`sched-icon-${k}`).value
+      enabled: document.getElementById(`sc-${k}`).checked,
+      name: document.getElementById(`sn-${k}`).value.trim(),
+      icon: "🏃"
     };
   });
-
   currentSchool.schedule = sched;
-  saveCurrentSchoolData();
 
-  buildActivitiesMap();
-  updateAppHeader();
-  renderActivitySelect();
-  onDateChanged();
-
-  showToast("Réglages enregistrés & synchronisés 💾");
+  saveStorage();
+  renderHome();
+  showToast("Réglages sauvegardés 💾");
 }
 
-/* =========================================================
-   ÉLÈVES & IMPORT CSV SANS LICENCE
-========================================================= */
+/* ELEVES & IMPORT */
 function openRosterModal() {
-  if (!currentSchool) { showToast("Veuillez d'abord sélectionner un établissement."); return; }
   renderRoster();
   document.getElementById("roster-modal").classList.add("show");
-  setTimeout(() => document.getElementById("new-lastname").focus(), 100);
 }
-function closeRosterModal() { document.getElementById("roster-modal").classList.remove("show"); }
-function outsideModal(e) { if (e.target.id === "roster-modal") closeRosterModal(); }
+function closeModal(id) { document.getElementById(id).classList.remove("show"); }
+function outsideModal(e, id) { if (e.target.id === id) closeModal(id); }
 
 function renderRoster() {
-  const cont = document.getElementById("roster-list");
-  const sorted = [...roster].sort((a, b) => displayName(a).localeCompare(displayName(b), "fr"));
-  document.getElementById("roster-count").textContent = sorted.length;
-
-  if (!sorted.length) {
-    cont.innerHTML = `<div class="empty"><div class="empty-icon">👥</div>Aucun élève enregistré.</div>`;
-    return;
-  }
-
-  cont.innerHTML = sorted.map(st => `
-    <div class="roster-row">
-      <div class="student-avatar">${escapeHTML(initials(st))}</div>
-      <div class="roster-row-info">
-        <strong>${escapeHTML(displayName(st))}</strong>
-        <small>${escapeHTML(st.class || "")}</small>
-      </div>
-      <button class="delete-student" type="button" onclick="deleteStudent('${st.id}')">🗑️</button>
+  const el = document.getElementById("roster-list");
+  el.innerHTML = currentSchool.roster.map(st => `
+    <div style="display:flex;justify-content:space-between;padding:6px;background:#f8fafc;border-radius:8px;">
+      <span><strong>${cleanName(st)}</strong> (${st.class || '-'})</span>
+      <button style="color:#ef4444;font-weight:bold;" type="button" onclick="deleteStudent('${st.id}')">✕</button>
     </div>
   `).join("");
 }
 
 function addStudent() {
-  const ln = document.getElementById("new-lastname").value.trim();
-  const fn = document.getElementById("new-firstname").value.trim();
-  const cl = document.getElementById("new-class").value.trim();
+  const nom = document.getElementById("new-nom").value.trim();
+  const prenom = document.getElementById("new-prenom").value.trim();
+  const classe = document.getElementById("new-classe").value.trim();
+  if (!nom || !prenom) return;
 
-  if (!ln || !fn) { showToast("Indiquez au minimum le nom et le prénom."); return; }
+  currentSchool.roster.push({ id: Date.now().toString(36), lastname: nom, firstname: prenom, class: classe });
+  document.getElementById("new-nom").value = "";
+  document.getElementById("new-prenom").value = "";
+  document.getElementById("new-classe").value = "";
 
-  roster.push({ id: uid(), lastname: ln, firstname: fn, class: cl });
-  saveCurrentSchoolData();
-
-  document.getElementById("new-lastname").value = "";
-  document.getElementById("new-firstname").value = "";
-  document.getElementById("new-class").value = "";
-
+  saveStorage();
   renderRoster();
-  renderGroupSelects();
-  renderHome();
-  renderAppel();
-  showToast("Élève ajouté ✅");
 }
 
 function deleteStudent(id) {
-  const st = roster.find(s => s.id === id);
-  if (!st || !confirm(`Supprimer ${displayName(st)} ?`)) return;
-
-  roster = roster.filter(s => s.id !== id);
-  sessions.forEach(s => { if (s.presenceIds) s.presenceIds = s.presenceIds.filter(x => x !== id); });
-
-  saveCurrentSchoolData();
+  currentSchool.roster = currentSchool.roster.filter(s => s.id !== id);
+  saveStorage();
   renderRoster();
-  renderGroupSelects();
-  renderHome();
-  renderAppel();
-  renderBilan();
-  showToast("Élève supprimé");
 }
 
-function parseCSVLine(line) {
-  const result = [];
-  let cur = "", inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"') {
-      if (inQ && line[i + 1] === '"') { cur += '"'; i++; }
-      else inQ = !inQ;
-    } else if (c === ';' && !inQ) {
-      result.push(cur.trim()); cur = "";
-    } else {
-      cur += c;
-    }
-  }
-  result.push(cur.trim());
-  return result;
-}
-
-function importCSV(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
+function importCSV(e) {
+  const f = e.target.files[0];
+  if (!f) return;
   const reader = new FileReader();
-  reader.onload = function(e) {
-    const lines = e.target.result.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-    if (!lines.length) { showToast("Fichier vide."); return; }
-
-    let added = 0, ignored = 0;
-    const header = parseCSVLine(lines[0]).join(";").toLowerCase();
-    const hasHeader = header.includes("nom") || header.includes("prénom") || header.includes("licence");
-    const startIndex = hasHeader ? 1 : 0;
-
-    for (let i = startIndex; i < lines.length; i++) {
-      let fields = parseCSVLine(lines[i]);
-      if (fields.length < 2) { ignored++; continue; }
-
-      // DÉTECTION INTELLIGENTE DU NUMÉRO DE LICENCE
-      if (/^[0-9]{4,}$/.test(fields[0]) \vert{}\vert{} /^[a-z]?[0-9]{5,}$/i.test(fields[0])) {
-        fields.shift();
+  reader.onload = function(evt) {
+    const lines = evt.target.result.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    let count = 0;
+    lines.forEach((l, idx) => {
+      let parts = l.split(";").map(p => p.replace(/^"|"$/g, "").trim());
+      if (/^[0-9]{4,}$/.test(parts[0])) parts.shift();
+      if (idx === 0 && (parts[0].toLowerCase().includes("nom") || parts[0].toLowerCase().includes("licence"))) return;
+      if (parts[0] && parts[1]) {
+        currentSchool.roster.push({ id: Date.now().toString(36) + Math.random().toString(36).substr(2,4), lastname: parts[0], firstname: parts[1], class: parts[2] || "" });
+        count++;
       }
-
-      let lastname = (fields[0] || "").trim().replace(/^"|"$/g, "");
-      let firstname = (fields[1] || "").trim().replace(/^"|"$/g, "");
-      let studentClass = (fields[2] || "").trim().replace(/^"|"$/g, "");
-
-      if (!lastname || !firstname) { ignored++; continue; }
-
-      const exists = roster.some(s =>
-        s.lastname.toLowerCase() === lastname.toLowerCase() &&
-        s.firstname.toLowerCase() === firstname.toLowerCase()
-      );
-
-      if (exists) { ignored++; continue; }
-
-      roster.push({ id: uid(), lastname, firstname, class: studentClass });
-      added++;
-    }
-
-    saveCurrentSchoolData();
-    renderRoster();
-    renderGroupSelects();
-    renderHome();
-    renderAppel();
-    renderBilan();
-
-    showToast(`${added} élève(s) importé(s) ✅ (${ignored} ignorés)`);
-    event.target.value = "";
-  };
-  reader.readAsText(file, "UTF-8");
-}
-
-/* =========================================================
-   EXPORTS CSV
-========================================================= */
-function csvEscape(v) {
-  const s = String(v ?? "");
-  return (s.includes(";") || s.includes('"') || s.includes("\n")) ? `"${s.replace(/"/g, '""')}"` : s;
-}
-
-function downloadFile(filename, content, type = "text/plain") {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-function exportStudentsCSV() {
-  const lines = ["Nom;Prénom;Classe"];
-  roster.forEach(s => lines.push([s.lastname, s.firstname, s.class].map(csvEscape).join(";")));
-  downloadFile(`eleves_${currentSchool.city || "AS"}.csv`, "\uFEFF" + lines.join("\n"), "text/csv;charset=utf-8");
-}
-
-function exportSessionsCSV() {
-  const lines = ["Date;Classe;Activité;Élève;Présent"];
-  sessions.forEach(sess => {
-    roster.filter(s => !sess.group || s.class === sess.group).forEach(st => {
-      const pres = sess.presenceIds && sess.presenceIds.includes(st.id);
-      lines.push([
-        sess.date, sess.group,
-        ACTIVITIES[sess.activity]?.name || sess.activity,
-        displayName(st), pres ? "P" : ""
-      ].map(csvEscape).join(";"));
     });
-  });
-  downloadFile(`presences_${currentSchool.city || "AS"}.csv`, "\uFEFF" + lines.join("\n"), "text/csv;charset=utf-8");
+    saveStorage();
+    renderRoster();
+    showToast(`${count} élèves importés ✅`);
+  };
+  reader.readAsText(f, "UTF-8");
 }
 
-/* =========================================================
-   OUTILS & NAVIGATION
-========================================================= */
-function loadJSON(key, fb) {
-  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fb; }
-  catch(e) { return fb; }
+/* ETABLISSEMENTS */
+function openSchoolsModal() {
+  const cont = document.getElementById("schools-list");
+  cont.innerHTML = Object.values(dbSchools).map(s => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#f8fafc;border-radius:10px;border:1px solid var(--border);">
+      <div><strong>${s.name}</strong><br><small>${s.city || ""}</small></div>
+      <button style="background:var(--primary);color:#fff;padding:6px 12px;border-radius:8px;font-weight:bold;" type="button" onclick="switchSchool('${s.id}')">Ouvrir</button>
+    </div>
+  `).join("");
+  document.getElementById("schools-modal").classList.add("show");
 }
 
-function uid() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 7); }
-
-function escapeHTML(v) {
-  return String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function switchSchool(id) {
+  const s = dbSchools[id];
+  if (s.accessCode) {
+    const code = prompt(`Code secret requis pour ${s.name} :`);
+    if (code !== s.accessCode) { alert("Code incorrect"); return; }
+  }
+  currentId = id;
+  currentSchool = dbSchools[id];
+  saveStorage();
+  closeModal("schools-modal");
+  renderHome();
+  showToast(`Établissement : ${currentSchool.name}`);
 }
 
-function todayISO() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
+function createSchool() {
+  const name = document.getElementById("new-sc-name").value.trim();
+  const city = document.getElementById("new-sc-city").value.trim();
+  const code = document.getElementById("new-sc-code").value.trim();
+  if (!name) return;
 
-function formatDate(ds) {
-  if (!ds) return "";
-  const p = ds.split("-");
-  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : ds;
+  const id = "sc_" + Date.now().toString(36);
+  dbSchools[id] = { id, name, city, accessCode: code, schedule: DEFAULT_SCHEDULE, roster: [], sessions: [] };
+  currentId = id;
+  currentSchool = dbSchools[id];
+  saveStorage();
+  closeModal("schools-modal");
+  renderHome();
+  showToast("Profil créé !");
 }
 
 function showToast(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg; t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2200);
+  setTimeout(() => t.classList.remove("show"), 2000);
 }
 
-function getGroups() {
-  const g = new Set();
-  roster.forEach(s => { if (s.class) g.add(s.class); });
-  return Array.from(g).sort((a,b) => a.localeCompare(b, "fr", { numeric: true }));
-}
-
-function renderGroupSelects() {
-  const groups = getGroups();
-  const asel = document.getElementById("appel-group");
-  const bsel = document.getElementById("bilan-group");
-  const pa = asel.value, pb = bsel.value;
-
-  asel.innerHTML = `<option value="">Toutes les classes</option>`;
-  bsel.innerHTML = `<option value="">Toutes les classes</option>`;
-
-  groups.forEach(x => {
-    asel.innerHTML += `<option value="${escapeHTML(x)}">${escapeHTML(x)}</option>`;
-    bsel.innerHTML += `<option value="${escapeHTML(x)}">${escapeHTML(x)}</option>`;
-  });
-
-  if (groups.includes(pa)) asel.value = pa;
-  if (groups.includes(pb)) bsel.value = pb;
-}
-
-function showPage(page) {
-  if (!currentSchool && page !== "portal") {
-    showPortal();
-    return;
-  }
-
-  ["home", "appel", "bilan", "settings", "portal"].forEach(n => {
-    const el = document.getElementById("page-" + n);
-    if (el) el.classList.toggle("active", n === page);
-  });
-
-  document.querySelectorAll(".main-nav-button").forEach(b => b.classList.remove("active"));
-  const btn = document.getElementById("nav-" + page);
-  if (btn) btn.classList.add("active");
-
-  if (page === "home") renderHome();
-  if (page === "appel") {
-    if (!document.getElementById("appel-date").value) {
-      document.getElementById("appel-date").value = todayISO();
-    }
-    onDateChanged();
-  }
-  if (page === "bilan") renderBilan();
-  if (page === "settings") renderSettingsPage();
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-/* =========================================================
-   INITIALISATION
-========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
-  initDatabase();
-
-  document.addEventListener("keydown", e => {
-    if (e.key === "Escape") closeRosterModal();
-  });
+  loadStorage();
+  renderHome();
 });
 </script>
-
 </body>
 </html>

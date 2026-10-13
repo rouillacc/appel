@@ -77,8 +77,15 @@ main { max-width: 1100px; margin: auto; padding: 18px 14px; }
 .student-row { background: white; border: 1px solid var(--border); border-radius: 13px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; }
 .st-info strong { display: block; font-size: 15px; }
 .st-info small { color: var(--muted); font-size: 12px; }
+.st-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; flex-shrink: 0;
+}
 .p-btn { width: 54px; height: 48px; border-radius: 11px; background: #e2e8f0; font-size: 19px; font-weight: bold; color: #64748b; }
 .p-btn.present { background: #16a34a; color: white; }
+
+/* BILAN */
+.bilan-student { background: white; border-radius: 14px; border: 1px solid var(--border); padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
 
 /* MODALS */
 .modal-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(15,23,42,.7); display: none; align-items: center; justify-content: center; padding: 12px; }
@@ -109,7 +116,7 @@ main { max-width: 1100px; margin: auto; padding: 18px 14px; }
       </div>
     </div>
     <div class="header-actions">
-      <span id="cloud-badge" class="cloud-badge" onclick="forceSyncFromCloud()">☁️ Connexion...</span>
+      <span id="cloud-badge" class="cloud-badge" onclick="showCloudDiagnostic()">☁️ Connexion...</span>
       <button class="header-btn" type="button" onclick="openSchoolsModal()">🏫 Établissement</button>
     </div>
   </div>
@@ -152,7 +159,7 @@ main { max-width: 1100px; margin: auto; padding: 18px 14px; }
   </div>
 
   <div class="card">
-    <h3>🏅 Top Élèves Assidus</h3>
+    <h3>🏅 Élèves les plus assidus</h3>
     <div id="top-students"></div>
   </div>
 </section>
@@ -371,7 +378,6 @@ function initApp() {
   if (!schoolsDB[currentSchoolId]) currentSchoolId = Object.keys(schoolsDB)[0];
   loadSchool(currentSchoolId);
 
-  // Écoute automatique en direct de Firestore
   listenCloud();
 }
 
@@ -394,7 +400,6 @@ function loadSchool(id) {
   document.getElementById("app-school-sub").textContent = currentSchool.city || "";
 }
 
-/* Enregistrement local pur (sans écraser avec des valeurs non initialisées) */
 function saveLocalOnly() {
   try {
     localStorage.setItem("as_schools_db_master", JSON.stringify(schoolsDB));
@@ -420,11 +425,11 @@ function pushToCloud(school) {
   const cleanSchool = JSON.parse(JSON.stringify(school));
   cleanSchool.id = targetId;
 
-  updateCloudBadge("syncing", "⏳ Envoi Cloud...");
+  updateCloudBadge("syncing", "⏳ Envoi...");
   db.collection(FIRESTORE_COLLECTION).doc(targetId).set(cleanSchool)
     .then(() => {
-      updateCloudBadge("online", `☁️ Synchronisé (${(cleanSchool.roster || []).length} élv.)`);
-      showToast(`Synchronisé sur Firebase (${(cleanSchool.roster || []).length} élèves) ✅`);
+      updateCloudBadge("online", "☁️ Synchronisé");
+      showToast("Données synchronisées sur le Cloud ✅");
     })
     .catch(err => {
       console.error("Erreur Firestore:", err);
@@ -440,7 +445,7 @@ function forceUpload() {
   }
 }
 
-/* SYNCHRO EN TEMPS RÉEL SUR TOUS LES APPAREILS */
+/* SYNCHRONISATION EN TEMPS RÉEL SUR LES APPAREILS */
 function listenCloud() {
   if (!db) { updateCloudBadge("offline", "🟠 Hors-ligne"); return; }
   try {
@@ -458,10 +463,7 @@ function listenCloud() {
       });
 
       if (updated) {
-        // Enregistre en local ce qui vient d'être reçu du Cloud
         saveLocalOnly();
-
-        // Si l'AS active a été mise à jour depuis le Cloud, on la charge d'abord !
         if (schoolsDB[currentSchoolId]) {
           loadSchool(currentSchoolId);
           renderHome();
@@ -471,8 +473,7 @@ function listenCloud() {
         }
       }
 
-      const count = (currentSchool && currentSchool.roster) ? currentSchool.roster.length : roster.length;
-      updateCloudBadge("online", `☁️ Synchronisé (${count} élv.)`);
+      updateCloudBadge("online", "☁️ Synchronisé");
     }, err => {
       console.warn("Écoute cloud:", err);
       updateCloudBadge("offline", "🟠 Hors-ligne");
@@ -505,16 +506,24 @@ function forceSyncFromCloud() {
       renderAppel();
       renderBilan();
       renderRoster();
-      updateCloudBadge("online", `☁️ Synchronisé (${roster.length} élv.)`);
-      showToast(`${roster.length} élèves chargés depuis le Cloud ! ✅`);
+      updateCloudBadge("online", "☁️ Synchronisé");
+      showToast("Données chargées depuis le Cloud ! ✅");
     } else {
-      updateCloudBadge("online", `☁️ Synchronisé (${roster.length} élv.)`);
-      showToast("Données à jour.");
+      updateCloudBadge("online", "☁️ Synchronisé");
+      showToast("Données déjà à jour.");
     }
   }).catch(err => {
     alert("Erreur de synchronisation : " + err.message);
     updateCloudBadge("offline", "🟠 Hors-ligne");
   });
+}
+
+function showCloudDiagnostic() {
+  const count = roster.length;
+  const msg = `État Cloud :\n• Appareil : ${count} élève(s)\n• AS active : ${currentSchool.name || "AS"}\n\nCliquez sur OK pour forcer le téléchargement depuis le Cloud.`;
+  if (confirm(msg)) {
+    forceSyncFromCloud();
+  }
 }
 
 /* NAVIGATION */
@@ -684,6 +693,7 @@ function clearCurrentSession() {
 function saveSession() {
   saveCurrentStateToLocal();
   pushToCloud(currentSchool);
+  showToast("Appel sauvegardé & synchronisé Cloud 💾");
   renderHome();
 }
 
@@ -742,15 +752,23 @@ function renderBilan() {
       if ((sess.presenceIds || []).includes(st.id)) count++;
     });
     return `
-      <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:12px;margin-bottom:8px;">
-        <div><strong>${cleanName(st)}</strong><small style="color:#64748b;">${st.class || ""}</small></div>
+      <div class="bilan-student">
+        <div><strong>${cleanName(st)}</strong><small style="color:#64748b;display:block;">${st.class || ""}</small></div>
         <div style="background:#dcfce7;color:#15803d;padding:6px 12px;border-radius:10px;font-weight:bold;">${count} présence(s)</div>
       </div>
     `;
   }).join("");
 }
 
-/* ACCUEIL */
+/* ACCUEIL & ÉLÈVES LES PLUS ASSIDUS */
+function getStudentPresenceCount(studentId) {
+  let count = 0;
+  sessions.forEach(s => {
+    if (s.presenceIds && s.presenceIds.includes(studentId)) count++;
+  });
+  return count;
+}
+
 function renderHome() {
   document.getElementById("stat-students").textContent = roster.length;
   document.getElementById("stat-sessions").textContent = sessions.length;
@@ -762,6 +780,7 @@ function renderHome() {
   const totalPossible = sessions.reduce((tot, s) => tot + roster.filter(st => !s.group || st.class === s.group).length, 0);
   document.getElementById("stat-rate").textContent = (totalPossible > 0 ? Math.round((totalP / totalPossible) * 100) : 0) + "%";
 
+  // Activités programmées
   const actCont = document.getElementById("home-activities");
   const keys = Object.keys(ACTIVITIES);
   actCont.innerHTML = keys.map(k => `
@@ -771,6 +790,34 @@ function renderHome() {
       <small style="color:var(--muted);">${DAY_LABELS[k]}</small>
     </div>
   `).join("");
+
+  // Rétablissement du Top 10 des élèves les plus assidus
+  const topCont = document.getElementById("top-students");
+  const top = roster
+    .map(st => ({ student: st, count: getStudentPresenceCount(st.id) }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  if (!top.length || top.every(item => item.count === 0)) {
+    topCont.innerHTML = `<p style="text-align:center;padding:15px;color:var(--muted);font-size:13px;">Aucune présence enregistrée pour le moment.</p>`;
+  } else {
+    topCont.innerHTML = top.map((item, index) => `
+      <div class="student-row" style="margin-bottom:7px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="st-avatar" style="background:linear-gradient(135deg, ${index === 0 ? "#f59e0b" : index === 1 ? "#94a3b8" : index === 2 ? "#b45309" : "#2563eb"}, #7c3aed);">
+            ${index + 1}
+          </div>
+          <div class="st-info">
+            <strong>${cleanName(item.student)}</strong>
+            <small>${item.student.class || ""}</small>
+          </div>
+        </div>
+        <div style="background:#dcfce7;color:#15803d;padding:6px 12px;border-radius:10px;font-weight:bold;font-size:13px;">
+          ${item.count} présence${item.count > 1 ? "s" : ""}
+        </div>
+      </div>
+    `).join("");
+  }
 }
 
 /* RÉGLAGES */
